@@ -1,0 +1,40 @@
+{
+  "name": "@dataink/lumberjack",
+  "version": "2.0.0",
+  "description": "Dual-mode logging utility with semantic styling for Node.js terminal and browser console",
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./Lumberjack": "./src/Lumberjack.class.js",
+    "./LumberjackStyle": "./src/LumberjackStyle.js",
+    "./LumberjackStyles": "./src/LumberjackStyles.js"
+  },
+  "scripts": {
+    "build": "rm -rf dist && mkdir -p dist && cp -R src/* dist/",
+    "lint": "find src -name '*.js' -print0 | xargs -0 -n1 node --check",
+    "sanity": "node -e \"import lumberjack from './src/index.js'; lumberjack.enabled = true; lumberjack.trace('ok');\"",
+    "demo": "npx http-server -p 8080 -o /demo/index.html"
+  },
+  "keywords": [
+    "logger",
+    "logging",
+    "console",
+    "terminal",
+    "browser",
+    "chalk",
+    "debug",
+    "styling"
+  ],
+  "author": "dataink.io",
+  "license": "MIT",
+  "types": "./types.d.ts",
+  "peerDependencies": {
+    "chalk": "^5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "chalk": {
+      "optional": true
+    }
+  }
+}
