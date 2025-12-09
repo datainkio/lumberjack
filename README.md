@@ -8,7 +8,7 @@ Lumberjack is a utility package that tarts up console messages to improve the de
 
 ```JavaScript
 # In each consuming project's package.json, add:
-"@dataink/lumberjack": "file:../lumberjack"
+"@datainkio/lumberjack": "file:../lumberjack"
 
 # Then install:
 npm install
@@ -20,7 +20,7 @@ Best Practice: Use relative file paths during development. This lets you modify 
 
 ```JavaScript
 // In each project's entry point or main module
-import lumberjack from '@dataink/lumberjack';
+import lumberjack from '@datainkio/lumberjack';
 
 // Only enable for development builds
 if (process.env.NODE_ENV === 'development') {
@@ -34,7 +34,7 @@ Best Practice: Tie logging to environment variables rather than hardcoding. This
 
 ```JavaScript
 // In each project, e.g., portfolio-site/src/logger.js
-import { Lumberjack } from '@dataink/lumberjack';
+import { Lumberjack } from '@datainkio/lumberjack';
 
 export const buildLogger = Lumberjack.createScoped('Build', {
   prefix: '🏗️',
