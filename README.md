@@ -7,10 +7,10 @@ Lumberjack is a utility package that tarts up console messages to improve the de
 ### 1. Local Package Installation
 
 ```JavaScript
-# In each consuming project's package.json, add:
+// In each consuming project's package.json, add:
 "@datainkio/lumberjack": "file:../lumberjack"
 
-# Then install:
+// Then install:
 npm install
 ```
 
