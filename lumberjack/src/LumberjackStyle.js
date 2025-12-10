@@ -16,6 +16,8 @@
  * LumberjackStyles.HEADSUP // Amber with ⚡
  * LumberjackStyles.STANDARD // Gray, no prefix
  */
+
+import brighten from "./utils.js";
 class LumberjackStyle {
   #color;
   #prefix;
@@ -62,6 +64,11 @@ class LumberjackStyle {
   /** @returns {string} Hex color */
   get color() {
     return this.#color;
+  }
+
+  /** @returns {string} Brightened hex color */
+  get color_secondary() {
+    return brighten(this.#color, 0.2);
   }
 
   /** @returns {string} Prefix emoji/symbol */

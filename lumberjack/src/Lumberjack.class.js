@@ -636,7 +636,8 @@ class Lumberjack {
    * @returns {LumberjackStyle} Resolved style object
    */
   _getStyle(style) {
-    if (style instanceof Object && style.color) return style;
+    if (style instanceof Object && style.color && style.color_secondary)
+      return style;
     return LumberjackStyles.getStyle(style);
   }
 
