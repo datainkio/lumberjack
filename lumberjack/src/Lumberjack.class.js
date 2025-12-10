@@ -5,9 +5,24 @@ import {
   INDENT_SIZE,
   MAX_ARRAY_PREVIEW,
   MAX_OBJECT_PREVIEW,
-  BASE_STYLE,
   DEFAULT_MODE,
   DEFAULT_STYLE,
+  SCRIPT_OUTLINE_ICON,
+  SCRIPT_OUTLINE_STYLE,
+  DIVIDER_CHAR,
+  DIVIDER_LENGTH,
+  DIVIDER_COLOR,
+} from "./config.js";
+import {
+  SCRIPT_OUTLINE_TITLE,
+  SCRIPT_OUTLINE_COUNT_TEMPLATE,
+  EXECUTION_BEGIN_TITLE,
+  EXECUTION_BEGIN_SUBTEXT,
+  LABEL_EXECUTES,
+  LABEL_TRIGGERS,
+  LABEL_REQUIRES,
+  GROUP_START_SUFFIX,
+  GROUP_COMPLETE_SUFFIX,
 } from "./constants.js";
 
 // Conditional chalk import - only available in Node.js environment
@@ -100,9 +115,10 @@ class Lumberjack {
 
     // Display initialization message only once
     if (!Lumberjack.#initialized) {
-      const statusColor = this.enabled
-        ? LumberjackStyles.SUCCESS.color
-        : LumberjackStyles.ERROR.color;
+      const statusStyle = this.enabled
+        ? LumberjackStyles.SUCCESS
+        : LumberjackStyles.ERROR;
+      const statusColor = statusStyle.color;
       const statusText = this.enabled ? "enabled" : "disabled";
 
       if (!Lumberjack.#isBrowser && chalk) {
@@ -114,9 +130,14 @@ class Lumberjack {
       } else {
         console.log(
           "%cLumberjack %cinitialized %c",
-          `color: ${LumberjackStyles.HEADSUP.color}; font-weight: normal`,
-          "color: inherit; font-weight: normal",
-          `color: ${statusColor}; font-weight: normal`
+          `color: ${LumberjackStyles.HEADSUP.color}; font-weight: ${
+            LumberjackStyles.HEADSUP.fontWeight ||
+            LumberjackStyles.DEFAULT.fontWeight
+          }; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`,
+          `color: inherit; font-weight: ${LumberjackStyles.DEFAULT.fontWeight}; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`,
+          `color: ${statusColor}; font-weight: ${
+            statusStyle.fontWeight || LumberjackStyles.DEFAULT.fontWeight
+          }; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
         );
       }
 
@@ -220,14 +241,14 @@ class Lumberjack {
 
       group: async (fn) => {
         instance.trace(
-          `${rawScopePrefix} Starting grouped operation`,
+          `${rawScopePrefix} ${GROUP_START_SUFFIX}`,
           null,
           "brief",
           "headsup"
         );
         const result = await instance.group(fn);
         instance.trace(
-          `${rawScopePrefix} Completed grouped operation`,
+          `${rawScopePrefix} ${GROUP_COMPLETE_SUFFIX}`,
           null,
           "brief",
           "success"
@@ -253,7 +274,12 @@ class Lumberjack {
   /**
    * Static trace method for convenience
    */
-  static trace(message, obj = null, mode = DEFAULT_MODE, style = "headsup") {
+  static trace(
+    message,
+    obj = null,
+    mode = DEFAULT_MODE,
+    style = DEFAULT_STYLE
+  ) {
     return Lumberjack.getInstance().trace(message, obj, mode, style);
   }
 
@@ -305,8 +331,9 @@ class Lumberjack {
     if (!this.enabled) return;
 
     const styleObj = this._getStyle(style);
-    const prefixIcon = styleObj.prefix || "📋";
-    const divider = "─".repeat(50);
+    const prefixIcon =
+      styleObj.prefix || SCRIPT_OUTLINE_STYLE?.prefix || SCRIPT_OUTLINE_ICON;
+    const divider = DIVIDER_CHAR.repeat(DIVIDER_LENGTH);
 
     if (!Lumberjack.#isBrowser && chalk) {
       console.log(
@@ -314,19 +341,27 @@ class Lumberjack {
           chalk.hex(styleObj.color)(prefixIcon) +
           ` ${operationName.toUpperCase()}`
       );
-      console.log(chalk.gray(divider));
+      console.log(chalk.hex(DIVIDER_COLOR)(divider));
     } else {
       console.log(
         "\n%c" + prefixIcon + "%c " + operationName.toUpperCase(),
-        `color: ${styleObj.color}; font-weight: normal`,
-        BASE_STYLE
+        `color: ${styleObj.color}; font-weight: ${
+          styleObj.fontWeight || LumberjackStyles.DEFAULT.fontWeight
+        }; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`,
+        `color: ${LumberjackStyles.DEFAULT.color}; font-weight: ${LumberjackStyles.DEFAULT.fontWeight}; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
       );
-      console.log("%c" + divider, "color: #808080; font-weight: normal");
+      console.log(
+        "%c" + divider,
+        `color: ${DIVIDER_COLOR}; font-weight: ${LumberjackStyles.DEFAULT.fontWeight}; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
+      );
     }
 
     this.trace(
-      "Script Execution Plan:",
-      `${scriptSequence.length} scripts will be executed in sequence`,
+      SCRIPT_OUTLINE_TITLE,
+      SCRIPT_OUTLINE_COUNT_TEMPLATE.replace(
+        "{count}",
+        String(scriptSequence.length)
+      ),
       "brief",
       "headsup"
     );
@@ -340,22 +375,22 @@ class Lumberjack {
             `${stepNumber} ${script.name}`,
             script.description || "No description provided",
             "brief",
-            "standard"
+            "default"
           );
 
           if (script.script) {
             this.indent();
-            this.trace("Executes:", script.script, "brief", "standard");
+            this.trace(LABEL_EXECUTES, script.script, "brief", "default");
             this.outdent();
           }
 
           if (script.triggers?.length) {
             this.indent();
             this.trace(
-              "Triggers:",
+              LABEL_TRIGGERS,
               script.triggers.join(", "),
               "brief",
-              "standard"
+              "default"
             );
             this.outdent();
           }
@@ -363,10 +398,10 @@ class Lumberjack {
           if (script.dependencies?.length) {
             this.indent();
             this.trace(
-              "Requires:",
+              LABEL_REQUIRES,
               script.dependencies.join(", "),
               "brief",
-              "standard"
+              "default"
             );
             this.outdent();
           }
@@ -378,15 +413,15 @@ class Lumberjack {
             `${stepNumber} ${script.name}${description}`,
             null,
             "brief",
-            "standard"
+            "default"
           );
         }
       });
     });
 
     this.trace(
-      "Execution will begin:",
-      "Scripts will run in the order shown above",
+      EXECUTION_BEGIN_TITLE,
+      EXECUTION_BEGIN_SUBTEXT,
       "brief",
       "headsup"
     );
@@ -429,13 +464,13 @@ class Lumberjack {
    * @param {string} message - User-defined message to display
    * @param {*} [obj] - Optional object(s) to trace (any datatype or array of objects)
    * @param {string} [mode='brief'] - Display mode: 'brief', 'verbose', or 'silent'
-   * @param {string|LumberjackStyle} [style='standard'] - Style type: 'standard', 'headsup', 'error', 'success', or a custom LumberjackStyle instance
+   * @param {string|LumberjackStyle} [style='default'] - Style type: 'default', 'headsup', 'error', 'success', or a custom LumberjackStyle instance
    */
   trace(message, obj = null, mode = DEFAULT_MODE, style = DEFAULT_STYLE) {
     if (!this.enabled || mode === "silent") return;
 
     // Auto-detect Error objects
-    if (style === "standard" && obj instanceof Error) style = "error";
+    if (style === "default" && obj instanceof Error) style = "error";
 
     const styleObj = this._getStyle(style);
     const indent = this._getIndent();
@@ -471,32 +506,48 @@ class Lumberjack {
       // Add indent and config prefix
       if (indent || configPrefix) {
         parts.push("%c" + indent + (configPrefix ? `${configPrefix} ` : ""));
-        styles.push(BASE_STYLE);
+        styles.push(
+          `color: ${LumberjackStyles.DEFAULT.color}; font-weight: ${LumberjackStyles.DEFAULT.fontWeight}; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
+        );
       }
 
       // Add style prefix (emoji/icon)
       if (hasPrefix) {
         parts.push("%c" + styleObj.prefix.replace(/\n/g, "\n" + indent));
-        styles.push(`color: ${styleObj.color}; font-weight: normal;`);
+        styles.push(
+          `color: ${styleObj.color}; font-weight: ${
+            styleObj.fontWeight || LumberjackStyles.DEFAULT.fontWeight
+          }; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
+        );
         if (!styleObj.prefix.match(/\s$/)) {
           parts.push("%c ");
-          styles.push(BASE_STYLE);
+          styles.push(
+            `color: ${LumberjackStyles.DEFAULT.color}; font-weight: ${LumberjackStyles.DEFAULT.fontWeight}; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
+          );
         }
       }
 
       // Add main message with custom color
       parts.push("%c" + message);
-      styles.push(`color: ${styleObj.color}; font-weight: normal;`);
+      styles.push(
+        `color: ${styleObj.color}; font-weight: ${
+          styleObj.fontWeight || LumberjackStyles.DEFAULT.fontWeight
+        }; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
+      );
 
       // Add data object if present
       if (obj != null) {
         if (mode === "brief") {
           parts.push("%c " + this._getValue(obj, false));
-          styles.push(BASE_STYLE);
+          styles.push(
+            `color: ${LumberjackStyles.DEFAULT.color}; font-weight: ${LumberjackStyles.DEFAULT.fontWeight}; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
+          );
         } else {
           // Verbose mode
           parts.push("%c\n" + this._formatVerbosePlain(obj, indent));
-          styles.push(BASE_STYLE);
+          styles.push(
+            `color: ${LumberjackStyles.DEFAULT.color}; font-weight: ${LumberjackStyles.DEFAULT.fontWeight}; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
+          );
         }
       }
 
@@ -516,7 +567,7 @@ class Lumberjack {
    */
   _traceScopedBrowser(scopePrefix, message, obj, mode, style, scopeColor) {
     if (!this.enabled || mode === "silent") return;
-    if (style === "standard" && obj instanceof Error) style = "error";
+    if (style === "default" && obj instanceof Error) style = "error";
 
     const styleObj = this._getStyle(style);
     const indent = this._getIndent();
@@ -525,29 +576,43 @@ class Lumberjack {
 
     if (indent) {
       parts.push("%c" + indent);
-      styles.push(BASE_STYLE);
+      styles.push(
+        `color: ${LumberjackStyles.DEFAULT.color}; font-weight: ${LumberjackStyles.DEFAULT.fontWeight}; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
+      );
     }
 
     const configPrefix = this.#config.prefix?.trim();
     if (configPrefix) {
       parts.push("%c" + configPrefix + " ");
-      styles.push(BASE_STYLE);
+      styles.push(
+        `color: ${LumberjackStyles.DEFAULT.color}; font-weight: ${LumberjackStyles.DEFAULT.fontWeight}; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
+      );
     }
 
     if (styleObj.prefix) {
       parts.push("%c" + styleObj.prefix.replace(/\n/g, "\n" + indent));
-      styles.push(`color: ${styleObj.color}; font-weight: normal`);
+      styles.push(
+        `color: ${styleObj.color}; font-weight: ${
+          styleObj.fontWeight || LumberjackStyles.DEFAULT.fontWeight
+        }; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
+      );
       if (!styleObj.prefix.match(/\s$/)) {
         parts.push("%c ");
-        styles.push(BASE_STYLE);
+        styles.push(
+          `color: ${LumberjackStyles.DEFAULT.color}; font-weight: ${LumberjackStyles.DEFAULT.fontWeight}; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
+        );
       }
     }
 
     parts.push("%c" + scopePrefix);
-    styles.push(`color: ${scopeColor}; font-weight: normal`);
+    styles.push(
+      `color: ${scopeColor}; font-weight: ${LumberjackStyles.DEFAULT.fontWeight}; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
+    );
 
     parts.push("%c " + message);
-    styles.push(BASE_STYLE);
+    styles.push(
+      `color: ${LumberjackStyles.DEFAULT.color}; font-weight: ${LumberjackStyles.DEFAULT.fontWeight}; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
+    );
 
     if (obj != null) {
       parts.push(
@@ -556,7 +621,9 @@ class Lumberjack {
             ? this._getValue(obj, false)
             : "\n" + this._formatVerbosePlain(obj, indent))
       );
-      styles.push(BASE_STYLE);
+      styles.push(
+        `color: ${LumberjackStyles.DEFAULT.color}; font-weight: ${LumberjackStyles.DEFAULT.fontWeight}; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
+      );
     }
 
     console.log(parts.join(""), ...styles);

@@ -23,12 +23,12 @@
 ## Modes & Styles
 
 - **Modes**: `'brief'` (default, single-line previews), `'verbose'` (multi-line formatted values), `'silent'` (short-circuits, no output).
-- **Styles**: String names `'standard'` | `'headsup'` | `'error'` | `'success'`, or `LumberjackStyle` instance.
-  - `STANDARD`: Gray-500 (#6B7280), no prefix.
+- **Styles**: String names `'default'` | `'headsup'` | `'error'` | `'success'`, or `LumberjackStyle` instance.
+  - `DEFAULT`: Gray-500 (#6B7280), no prefix.
   - `HEADSUP`: Amber-500 (#F59E0B), ⚡ prefix.
   - `ERROR`: Red-500 (#EF4444), ❌ prefix.
   - `SUCCESS`: Green-500 (#10B981), no prefix.
-- **Error auto-detection**: If `style === 'standard'` and `obj` is an `Error`, `trace` automatically coerces to `'error'` style and includes stack trace. Override by passing explicit style.
+- **Error auto-detection**: If `style === 'default'` and `obj` is an `Error`, `trace` automatically coerces to `'error'` style and includes stack trace. Override by passing explicit style.
 
 ## Indentation & Grouping
 

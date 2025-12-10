@@ -104,7 +104,7 @@
       >
         🚀 Enable Logger (Click Me First!)
       </button>
-      <button id="btn-basic">Log Default Message</button>
+      <button id="btn-basic">Log Standard Message</button>
       <button id="btn-headsup">Log Headsup</button>
       <button id="btn-success">Log Success</button>
       <button id="btn-error-style">Log Error Style</button>
@@ -114,8 +114,8 @@
         <pre><code>// Toggle logger
 lumberjack.enabled = !lumberjack.enabled;
 
-// Default message
-lumberjack.trace("Default message", sampleData, "brief", "default");
+// Standard message
+lumberjack.trace("Standard message", sampleData, "brief", "standard");
 
 // Headsup (⚡ amber)
 lumberjack.trace("Important notification", { priority: "high" }, "brief", "headsup");
@@ -179,6 +179,8 @@ lumberjack.trace("Reset to Level 0");
 
 // Grouped logs (auto-indent/outdent)
 await lumberjack.group(async () => {
+  lumberjack.trace("Parent operation started");
+  lumberjack.trace("Child operation 1 (auto-indented)");
   lumberjack.trace("Child operation 2 (auto-indented)");
 });
 lumberjack.trace("After group (indent restored)");</code></pre>
@@ -255,7 +257,7 @@ lumberjack.showScriptOutline("CI/CD Workflow", [
       <h2>7. Custom Styles</h2>
       <button id="btn-custom-style">Single Purple Message</button>
       <button id="btn-set-default-style">Set Purple as Default Style</button>
-      <button id="btn-reset-style">Reset to Default Style</button>
+      <button id="btn-reset-style">Reset to Standard Style</button>
 
       <div class="code-section">
         <div class="code-label">Code Examples:</div>
@@ -264,7 +266,7 @@ const purpleStyle = new LumberjackStyle("#9333EA", "🎨");
 
 // Use once for a single message
 lumberjack.trace(
-  "Single custom purple message (next message will be default)",
+  "Single custom purple message (next message will be standard)",
   { theme: "royal" },
   "brief",
   purpleStyle
@@ -275,9 +277,9 @@ lumberjack.trace("Purple style message 1", { count: 1 }, "brief", purpleStyle);
 lumberjack.trace("Purple style message 2", { count: 2 }, "brief", purpleStyle);
 lumberjack.trace("Purple style message 3", { count: 3 }, "brief", purpleStyle);
 
-// Reset to default style
-lumberjack.trace("Back to default style (gray, no prefix)", 
-  { reset: true }, "brief", "default");</code></pre>
+// Reset to standard style
+lumberjack.trace("Back to standard style (gray, no prefix)", 
+  { reset: true }, "brief", "standard");</code></pre>
       </div>
     </div>
 
@@ -300,10 +302,10 @@ lumberjack.trace("Logger reconfigured with prefix");</code></pre>
 
     <script type="module">
       // Import from the src directory
-      import lumberjack from "./assets/js/vendors/lumberjack/index.js";
-      import { Lumberjack } from "./assets/js/vendors/lumberjack/Lumberjack.class.js";
-      import LumberjackStyle from "./assets/js/vendors/lumberjack/LumberjackStyle.js";
-
+      import lumberjack from "../src/index.js";
+      import { Lumberjack } from "../src/Lumberjack.class.js";
+      import LumberjackStyle from "../src/LumberjackStyle.js";
+      console.log("hi there");
       // Sample data for demos
       const sampleData = {
         user: "alice",
@@ -329,14 +331,6 @@ lumberjack.trace("Logger reconfigured with prefix");</code></pre>
         lumberjack.enabled = !lumberjack.enabled;
 
         if (lumberjack.enabled) {
-          console.log(
-            "%c✅ LOGGER ENABLED!",
-            "color: #10b981; font-size: 18px; font-weight: bold; background: #064e3b; padding: 8px 16px; border-radius: 4px;"
-          );
-          console.log(
-            "%cNow try the other buttons to see Lumberjack in action!",
-            "color: #34d399; font-size: 14px;"
-          );
           lumberjack.trace(
             "✅ Logger enabled! Check console for all subsequent logs."
           );
@@ -354,7 +348,7 @@ lumberjack.trace("Logger reconfigured with prefix");</code></pre>
       updateToggleButton();
 
       document.getElementById("btn-basic").addEventListener("click", () => {
-        lumberjack.trace("Default message", sampleData, "brief", "default");
+        lumberjack.trace("Standard message", sampleData, "brief", "standard");
       });
 
       document.getElementById("btn-headsup").addEventListener("click", () => {
@@ -519,7 +513,7 @@ lumberjack.trace("Logger reconfigured with prefix");</code></pre>
         .getElementById("btn-custom-style")
         .addEventListener("click", () => {
           lumberjack.trace(
-            "Single custom purple message (next message will be default)",
+            "Single custom purple message (next message will be standard)",
             { theme: "royal" },
             "brief",
             purpleStyle
@@ -559,10 +553,10 @@ lumberjack.trace("Logger reconfigured with prefix");</code></pre>
         .getElementById("btn-reset-style")
         .addEventListener("click", () => {
           lumberjack.trace(
-            "Back to default style (gray, no prefix)",
+            "Back to standard style (gray, no prefix)",
             { reset: true },
             "brief",
-            "default"
+            "standard"
           );
         });
 

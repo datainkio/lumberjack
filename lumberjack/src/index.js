@@ -39,6 +39,7 @@
 import { Lumberjack } from "./Lumberjack.class.js";
 import LumberjackStyle from "./LumberjackStyle.js";
 import LumberjackStyles from "./LumberjackStyles.js";
+import { DEFAULT_MODE, DEFAULT_STYLE } from "./config.js";
 
 /**
  * Default lumberjack singleton - use for most logging needs
@@ -51,7 +52,7 @@ const lumberjack = {
    * @param {'brief'|'verbose'} [mode='brief'] - Detail level
    * @param {string|LumberjackStyle} [style='standard'] - 'standard'|'headsup'|'error'|'success' or custom
    */
-  trace: (message, obj = null, mode = "brief", style = "standard") =>
+  trace: (message, obj = null, mode = DEFAULT_MODE, style = DEFAULT_STYLE) =>
     Lumberjack.getInstance().trace(message, obj, mode, style),
 
   /** Increase indent level */
@@ -80,7 +81,7 @@ const lumberjack = {
     operationName,
     scriptSequence,
     mode = "brief",
-    style = "headsup"
+    style = DEFAULT_STYLE
   ) =>
     Lumberjack.getInstance().showScriptOutline(
       operationName,
