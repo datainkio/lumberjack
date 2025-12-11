@@ -24,6 +24,7 @@ import {
   GROUP_START_SUFFIX,
   GROUP_COMPLETE_SUFFIX,
 } from "./constants.js";
+import brighten from "./utils.js";
 
 // Conditional chalk import - only available in Node.js environment
 let chalk = null;
@@ -208,6 +209,7 @@ class Lumberjack {
     const instance = Lumberjack.getInstance();
     const { color: scopeColor, prefix } = options;
     const rawScopePrefix = prefix ? `${prefix} [${scope}]` : `[${scope}]`;
+    const brightScopeColor = scopeColor ? brighten(scopeColor, 0.2) : null;
 
     return {
       trace: (
@@ -229,7 +231,7 @@ class Lumberjack {
 
         const scopedMessage =
           scopeColor && !Lumberjack.#isBrowser && chalk
-            ? `${chalk.hex(scopeColor)(rawScopePrefix)} ${message}`
+            ? `${chalk.hex(brightScopeColor)(rawScopePrefix)} ${message}`
             : `${rawScopePrefix} ${message}`;
 
         return instance.trace(scopedMessage, obj, mode, style);

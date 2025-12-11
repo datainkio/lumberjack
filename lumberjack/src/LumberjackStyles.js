@@ -62,11 +62,24 @@ class LumberjackStyles {
 
   /**
    * Get style by name (case-insensitive)
-   * @param {string} styleName - 'default'|'headsup'|'error'|'success'
+   * @param {string|LumberjackStyle|Object} styleName - 'default'|'headsup'|'error'|'success' or a LumberjackStyle instance
    * @returns {LumberjackStyle} Matching style or DEFAULT if not found
    */
   static getStyle(styleName) {
-    const normalized = styleName?.toLowerCase();
+    if (!styleName) return this.DEFAULT;
+
+    // Allow direct LumberjackStyle instance or compatible object
+    if (
+      styleName instanceof Object &&
+      styleName.color &&
+      styleName.color_secondary
+    ) {
+      return styleName;
+    }
+
+    if (typeof styleName !== "string") return this.DEFAULT;
+
+    const normalized = styleName.toLowerCase();
     switch (normalized) {
       case "headsup":
         return this.HEADSUP;
