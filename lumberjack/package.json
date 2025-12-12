@@ -1,14 +1,14 @@
 {
-  "name": "@dataink/lumberjack",
+  "name": "@datainkio/lumberjack",
   "version": "2.0.1",
   "description": "Dual-mode logging utility with semantic styling for Node.js terminal and browser console",
   "type": "module",
   "main": "./src/index.js",
   "exports": {
-    ".": "./src/index.js",
-    "./Lumberjack": "./src/Lumberjack.class.js",
-    "./LumberjackStyle": "./src/LumberjackStyle.js",
-    "./LumberjackStyles": "./src/LumberjackStyles.js"
+    ".": "./dist/index.js",
+    "./Lumberjack": "./dist/Lumberjack.class.js",
+    "./LumberjackStyle": "./dist/LumberjackStyle.js",
+    "./LumberjackStyles": "./dist/LumberjackStyles.js"
   },
   "scripts": {
     "build": "rm -rf dist && mkdir -p dist && cp -R src/* dist/",

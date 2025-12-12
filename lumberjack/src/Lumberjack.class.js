@@ -12,6 +12,7 @@ import {
   DIVIDER_CHAR,
   DIVIDER_LENGTH,
   DIVIDER_COLOR,
+  BRIGHTEN_PERCENT,
 } from "./config.js";
 import {
   SCRIPT_OUTLINE_TITLE,
@@ -209,7 +210,9 @@ class Lumberjack {
     const instance = Lumberjack.getInstance();
     const { color: scopeColor, prefix } = options;
     const rawScopePrefix = prefix ? `${prefix} [${scope}]` : `[${scope}]`;
-    const brightScopeColor = scopeColor ? brighten(scopeColor, 0.2) : null;
+    const brightScopeColor = scopeColor
+      ? brighten(scopeColor, BRIGHTEN_PERCENT)
+      : null;
 
     return {
       trace: (
@@ -219,19 +222,24 @@ class Lumberjack {
         style = DEFAULT_STYLE
       ) => {
         if (scopeColor && Lumberjack.#isBrowser) {
+          // Browser: scope prefix uses brightened color, message uses original scope color
           return instance._traceScopedBrowser(
             rawScopePrefix,
             message,
             obj,
             mode,
             style,
-            scopeColor
+            scopeColor, // original for message
+            brightScopeColor // brightened for scope prefix
           );
         }
 
+        // Node: scope prefix uses brightened color, message uses original scope color
         const scopedMessage =
           scopeColor && !Lumberjack.#isBrowser && chalk
-            ? `${chalk.hex(brightScopeColor)(rawScopePrefix)} ${message}`
+            ? `${chalk.hex(brightScopeColor ?? scopeColor)(
+                rawScopePrefix
+              )} ${chalk.hex(scopeColor)(message)}`
             : `${rawScopePrefix} ${message}`;
 
         return instance.trace(scopedMessage, obj, mode, style);
@@ -567,7 +575,15 @@ class Lumberjack {
    * @param {string} style - Style type
    * @param {string} scopeColor - Hex color for the scope
    */
-  _traceScopedBrowser(scopePrefix, message, obj, mode, style, scopeColor) {
+  _traceScopedBrowser(
+    scopePrefix,
+    message,
+    obj,
+    mode,
+    style,
+    scopeColor, // original
+    brightScopeColor // brightened
+  ) {
     if (!this.enabled || mode === "silent") return;
     if (style === "default" && obj instanceof Error) style = "error";
 
@@ -606,14 +622,19 @@ class Lumberjack {
       }
     }
 
+    // Scope prefix uses brightened color
+    const scopeColorFinal =
+      brightScopeColor || scopeColor || LumberjackStyles.DEFAULT.color;
     parts.push("%c" + scopePrefix);
     styles.push(
-      `color: ${scopeColor}; font-weight: ${LumberjackStyles.DEFAULT.fontWeight}; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
+      `color: ${scopeColorFinal}; font-weight: ${LumberjackStyles.DEFAULT.fontWeight}; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
     );
 
+    // Message uses original scope color
+    const messageColor = scopeColor || LumberjackStyles.DEFAULT.color;
     parts.push("%c " + message);
     styles.push(
-      `color: ${LumberjackStyles.DEFAULT.color}; font-weight: ${LumberjackStyles.DEFAULT.fontWeight}; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
+      `color: ${messageColor}; font-weight: ${LumberjackStyles.DEFAULT.fontWeight}; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
     );
 
     if (obj != null) {
@@ -650,16 +671,18 @@ class Lumberjack {
    * @param {boolean} [inArray=false] - Whether the object is inside an array
    * @returns {string} Formatted string
    */
-  _getValue(obj, inArray = false) {
+  _getValue(obj, inArray = false, seen = new Set()) {
     if (obj === null) return "null";
     if (obj === undefined) return "undefined";
     if (typeof obj === "string") return obj;
     if (typeof obj === "number" || typeof obj === "boolean") return String(obj);
 
     if (Array.isArray(obj)) {
+      if (seen.has(obj)) return "[Circular]";
+      seen.add(obj);
       const preview = obj
         .slice(0, MAX_ARRAY_PREVIEW)
-        .map((item) => this._getValue(item, true));
+        .map((item) => this._getValue(item, true, seen));
       const suffix = obj.length > MAX_ARRAY_PREVIEW ? ", ..." : "";
       return `[${preview.join(", ")}${suffix}]`;
     }
@@ -669,10 +692,14 @@ class Lumberjack {
     }
 
     if (typeof obj === "object") {
+      if (seen.has(obj)) return "[Circular]";
+      //console.log(obj);
+      // if (depth >= MAX_VERBOSE_DEPTH) return "{...}";
+      seen.add(obj);
       const keys = Object.keys(obj);
       const previewKeys = keys.slice(0, MAX_OBJECT_PREVIEW);
       const preview = previewKeys.map(
-        (key) => `${key}: ${this._getValue(obj[key])}`
+        (key) => `${key}: ${this._getValue(obj[key], false, seen)}`
       );
       const suffix = keys.length > MAX_OBJECT_PREVIEW ? ", ..." : "";
       return `{ ${preview.join(", ")}${suffix} }`;
@@ -689,8 +716,9 @@ class Lumberjack {
    * @param {string} indent - Current indentation string
    * @returns {string} Formatted multi-line string
    */
-  _formatVerbosePlain(obj, indent = "") {
+  _formatVerbosePlain(obj, indent = "", seen = new Set(), depth = 0) {
     const space = " ".repeat(INDENT_SIZE);
+    const MAX_VERBOSE_DEPTH = 5;
 
     if (obj === null) return "null";
     if (obj === undefined) return "undefined";
@@ -698,12 +726,17 @@ class Lumberjack {
     if (typeof obj === "number" || typeof obj === "boolean") return String(obj);
 
     if (Array.isArray(obj)) {
+      if (seen.has(obj)) return "[Circular]";
+      if (depth >= MAX_VERBOSE_DEPTH) return "[...]";
+      seen.add(obj);
       const items = obj
         .map(
           (item) =>
             `${indent}${space}- ${this._formatVerbosePlain(
               item,
-              indent + space
+              indent + space,
+              seen,
+              depth + 1
             )}`
         )
         .join("\n");
@@ -715,12 +748,17 @@ class Lumberjack {
     }
 
     if (typeof obj === "object") {
+      if (seen.has(obj)) return "[Circular]";
+      if (depth >= MAX_VERBOSE_DEPTH) return "{...}";
+      seen.add(obj);
       const entries = Object.entries(obj)
         .map(
           ([key, value]) =>
             `${indent}${space}${key}: ${this._formatVerbosePlain(
               value,
-              indent + space
+              indent + space,
+              seen,
+              depth + 1
             )}`
         )
         .join("\n");

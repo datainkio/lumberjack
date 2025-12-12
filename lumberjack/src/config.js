@@ -34,3 +34,5 @@ export const DIVIDER_COLOR = "#808080";
 
 // Script outline text and labels (can be customized or localized)
 // (Outline/label constants moved to `constants.js`)
+
+export const BRIGHTEN_PERCENT = 0.6;
