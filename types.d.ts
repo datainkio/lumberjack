@@ -5,7 +5,7 @@
  */
 
 export type LogMode = 'brief' | 'verbose' | 'silent';
-export type LogStyleName = 'standard' | 'headsup' | 'error' | 'success';
+export type LogStyleName = 'default' | 'headsup' | 'error' | 'success';
 
 export interface LumberjackConfig {
   enabled?: boolean;
@@ -20,14 +20,16 @@ export interface ScopedLoggerOptions {
 }
 
 export declare class LumberjackStyle {
-  constructor(color: string, prefix?: string);
+  constructor(color: string, prefix?: string, fontWeight?: string, fontSize?: number);
   readonly color: string;
   readonly prefix: string;
+  readonly fontWeight: string;
+  readonly fontSize: number;
 }
 
 export declare class LumberjackStyles {
   static readonly SEPARATOR: string;
-  static readonly STANDARD: LumberjackStyle;
+  static readonly DEFAULT: LumberjackStyle;
   static readonly HEADSUP: LumberjackStyle;
   static readonly ERROR: LumberjackStyle;
   static readonly SUCCESS: LumberjackStyle;

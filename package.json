@@ -1,0 +1,52 @@
+{
+  "name": "@datainkio/lumberjack",
+  "version": "0.1.0",
+  "description": "Styled logger for Node.js terminals and browser consoles",
+  "type": "module",
+  "license": "UNLICENSED",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./types.d.ts",
+  "exports": {
+    ".": {
+      "types": "./types.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./Lumberjack": {
+      "types": "./types.d.ts",
+      "default": "./dist/Lumberjack.class.js"
+    },
+    "./LumberjackStyle": {
+      "types": "./types.d.ts",
+      "default": "./dist/LumberjackStyle.js"
+    },
+    "./LumberjackStyles": {
+      "types": "./types.d.ts",
+      "default": "./dist/LumberjackStyles.js"
+    }
+  },
+  "files": [
+    "dist/**",
+    "types.d.ts"
+  ],
+  "peerDependencies": {
+    "chalk": "^5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "chalk": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "node ./scripts/build.js",
+    "docs:vendor": "node ./scripts/sync-docs-vendor.js",
+    "prepublishOnly": "npm run build",
+    "lint": "node --check ./dist/index.js && node --check ./dist/Lumberjack.class.js && node --check ./dist/LumberjackStyle.js && node --check ./dist/LumberjackStyles.js && node --check ./dist/config.js && node --check ./dist/constants.js && node --check ./dist/utils.js"
+  },
+  "publishConfig": {
+    "access": "restricted"
+  }
+}
