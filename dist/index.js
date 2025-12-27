@@ -1,5 +1,6 @@
 import { Lumberjack as t } from "./Lumberjack.class.js";
-import { default as i } from "./LumberjackStyles.js";
+import { default as i } from "./LumberjackStyle.js";
+import { default as f } from "./LumberjackStyles.js";
 import { DEFAULT_MODE as o, DEFAULT_STYLE as c } from "./config.js";
 const d = {
   /**
@@ -55,6 +56,7 @@ const d = {
 };
 export {
   t as Lumberjack,
-  i as LumberjackStyles,
+  i as LumberjackStyle,
+  f as LumberjackStyles,
   d as default
 };
