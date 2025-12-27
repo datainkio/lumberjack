@@ -11,6 +11,83 @@
         nested: { deep: { value: "hello" } },
       };
 
+      // Header dropdown settings
+      const dropdownBtn = document.querySelector(".dropdown-btn");
+      const dropdownMenu = document.querySelector(".dropdown-menu");
+      const loggingCheckbox = document.getElementById("setting-logging");
+      const callerLocationCheckbox = document.getElementById("setting-caller-location");
+
+      // Initialize checkboxes to match current state
+      loggingCheckbox.checked = lumberjack.enabled;
+      callerLocationCheckbox.checked = lumberjack.config.showCallerLocation;
+
+      // Dropdown toggle
+      dropdownBtn.addEventListener("click", () => {
+        dropdownMenu.classList.toggle("active");
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener("click", (e) => {
+        if (!e.target.closest(".dropdown-container")) {
+          dropdownMenu.classList.remove("active");
+        }
+      });
+
+      // Close dropdown when an option is clicked
+      dropdownMenu.addEventListener("click", () => {
+        dropdownMenu.classList.remove("active");
+      });
+
+      // Update dropdown item text and colors
+      function updateLoggingDropdownItem() {
+        const loggingText = document.getElementById("logging-text");
+        if (loggingCheckbox.checked) {
+          loggingText.textContent = "🟢 Disable Logger";
+        } else {
+          loggingText.textContent = "🚀 Enable Logger";
+        }
+      }
+
+      function updateCallerLocationDropdownItem() {
+        const callerLocationText = document.getElementById("caller-location-text");
+        if (callerLocationCheckbox.checked) {
+          callerLocationText.textContent = "📍 Disable Caller Location";
+        } else {
+          callerLocationText.textContent = "📍 Enable Caller Location";
+        }
+      }
+
+      // Logging checkbox listener
+      loggingCheckbox.addEventListener("change", () => {
+        lumberjack.enabled = loggingCheckbox.checked;
+        if (lumberjack.enabled) {
+          lumberjack.trace("✅ Logger enabled from settings dropdown");
+        } else {
+          console.log(
+            "%c⚠️ Logger disabled from settings dropdown",
+            "color: #F59E0B; font-weight: bold;"
+          );
+        }
+        updateToggleButton();
+        updateLoggingDropdownItem();
+      });
+
+      // Caller location checkbox listener
+      callerLocationCheckbox.addEventListener("change", () => {
+        lumberjack.configure({
+          showCallerLocation: callerLocationCheckbox.checked,
+        });
+        if (lumberjack.enabled) {
+          if (callerLocationCheckbox.checked) {
+            lumberjack.trace("✅ Caller location enabled from settings dropdown");
+          } else {
+            lumberjack.trace("⚠️ Caller location disabled from settings dropdown");
+          }
+        }
+        updateCallerLocationButton();
+        updateCallerLocationDropdownItem();
+      });
+
       // 1. Toggle Logger Enable/Disable
       const toggleBtn = document.getElementById("btn-toggle");
 

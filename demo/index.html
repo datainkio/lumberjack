@@ -7,7 +7,24 @@
     <link rel="stylesheet" href="./styles.css">
   </head>
   <body>
-    <h1>🪓 Lumberjack Browser Demo</h1>
+    <header class="sticky-header">
+      <div class="header-content">
+        <h1>🪓 Lumberjack Browser Demo</h1>
+        <div class="dropdown-container">
+          <button class="dropdown-btn">⚙️ Settings</button>
+          <div class="dropdown-menu">
+            <label class="dropdown-item" id="logging-item">
+              <input type="checkbox" id="setting-logging" />
+              <span id="logging-text">🚀 Enable Logger</span>
+            </label>
+            <label class="dropdown-item" id="caller-location-item">
+              <input type="checkbox" id="setting-caller-location" checked />
+              <span id="caller-location-text">📍 Caller Location Enabled</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </header>
 
     <div class="note">
       <strong>📋 Important:</strong> Open your browser's DevTools console (F12)
