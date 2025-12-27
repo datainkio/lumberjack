@@ -11,6 +11,11 @@
         nested: { deep: { value: "hello" } },
       };
 
+      // Configure lumberjack defaults
+      lumberjack.configure({
+        showCallerLocation: false,
+      });
+
       // Header dropdown settings
       const dropdownBtn = document.querySelector(".dropdown-btn");
       const dropdownMenu = document.querySelector(".dropdown-menu");
@@ -68,7 +73,6 @@
             "color: #F59E0B; font-weight: bold;"
           );
         }
-        updateToggleButton();
         updateLoggingDropdownItem();
       });
 
@@ -84,76 +88,9 @@
             lumberjack.trace("⚠️ Caller location disabled from settings dropdown");
           }
         }
-        updateCallerLocationButton();
         updateCallerLocationDropdownItem();
       });
 
-      // 1. Toggle Logger Enable/Disable
-      const toggleBtn = document.getElementById("btn-toggle");
-
-      function updateToggleButton() {
-        if (lumberjack.enabled) {
-          toggleBtn.textContent = "🟢 Logger Enabled (Click to Disable)";
-          toggleBtn.style.background = "#10b981";
-        } else {
-          toggleBtn.textContent = "🚀 Enable Logger (Click Me First!)";
-          toggleBtn.style.background = "#fbbf24";
-        }
-      }
-
-      toggleBtn.addEventListener("click", () => {
-        lumberjack.enabled = !lumberjack.enabled;
-
-        if (lumberjack.enabled) {
-          lumberjack.trace(
-            "✅ Logger enabled! Check console for all subsequent logs."
-          );
-        } else {
-          console.log(
-            "%c⚠️ Logger disabled - no more Lumberjack output until re-enabled",
-            "color: #F59E0B; font-weight: bold;"
-          );
-        }
-
-        updateToggleButton();
-      });
-
-      // Initialize button state
-      updateToggleButton();
-
-      // 2. Toggle Caller Location Enable/Disable
-      const toggleCallerLocationBtn = document.getElementById("btn-toggle-caller-location");
-
-      function updateCallerLocationButton() {
-        if (lumberjack.config.showCallerLocation) {
-          toggleCallerLocationBtn.textContent = "📍 Caller Location Enabled (Click to Disable)";
-          toggleCallerLocationBtn.style.background = "#60a5fa";
-        } else {
-          toggleCallerLocationBtn.textContent = "📍 Caller Location Disabled (Click to Enable)";
-          toggleCallerLocationBtn.style.background = "#ef4444";
-        }
-      }
-
-      toggleCallerLocationBtn.addEventListener("click", () => {
-        lumberjack.configure({
-          showCallerLocation: !lumberjack.config.showCallerLocation,
-        });
-
-        if (lumberjack.config.showCallerLocation) {
-          lumberjack.trace(
-            "✅ Caller location enabled! File:line will now appear in logs."
-          );
-        } else {
-          lumberjack.trace(
-            "⚠️ Caller location disabled - file:line will no longer appear in logs."
-          );
-        }
-
-        updateCallerLocationButton();
-      });
-
-      // Initialize button state
-      updateCallerLocationButton();
 
       document.getElementById("btn-basic").addEventListener("click", () => {
         lumberjack.trace("Standard message", sampleData, "brief", "standard");
