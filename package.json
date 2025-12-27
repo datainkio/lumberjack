@@ -45,9 +45,10 @@
     "docs:vendor": "node ./scripts/sync-docs-vendor.js",
     "prepublishOnly": "npm run build",
     "lint": "node --check ./dist/index.js && node --check ./dist/Lumberjack.class.js && node --check ./dist/LumberjackStyle.js && node --check ./dist/LumberjackStyles.js && node --check ./dist/config.js && node --check ./dist/constants.js && node --check ./dist/utils.js",
-    "test": "vitest",
+    "test": "vitest run",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage"
+    "test:dev": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "devDependencies": {
     "@vitest/ui": "^4.0.16",
