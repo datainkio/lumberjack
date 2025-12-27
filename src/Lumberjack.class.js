@@ -107,9 +107,10 @@ class Lumberjack {
             prefix: "",
             styles: {},
             scope: null,
+            showCallerLocation: true,
             ...enabled,
           }
-        : { enabled, prefix: "", styles: {}, scope: null };
+        : { enabled, prefix: "", styles: {}, scope: null, showCallerLocation: true };
 
     this.enabled = this.#config.enabled;
     this.#indentLevel = 0;
@@ -460,28 +461,52 @@ class Lumberjack {
       for (let i = 0; i < stack.length; i++) {
         const frame = stack[i];
         
-        // Skip internal frames (Lumberjack.class.js only - the core implementation)
-        if (frame.includes('Lumberjack.class.js') ||
-            frame.includes('node_modules') ||
-            frame.includes('internal/')) {
+        // Extract file, line, and column from frame
+        // Look for the pattern: (file:line:column) or at file:line:column
+        // where file can be a path or URL
+        let file, line, column;
+        
+        // Try to match pattern with parentheses first: "at name (file:line:col)"
+        let match = frame.match(/\(([^)]+):(\d+):(\d+)\)/);
+        if (match) {
+          file = match[1];
+          line = match[2];
+          column = match[3];
+        } else {
+          // Try pattern without parentheses: "at file:line:col"
+          // This regex looks for a path/URL followed by :digits:digits at the end
+          match = frame.match(/at\s+(.+):(\d+):(\d+)$/);
+          if (match) {
+            file = match[1];
+            line = match[2];
+            column = match[3];
+          }
+        }
+        
+        if (!file || !line || !column) {
           continue;
         }
         
-        // Extract file, line, and column from frame
-        // Format: "at functionName (file:line:column)" or "at file:line:column"
-        const match = frame.match(/\(([^:]+):(\d+):(\d+)\)|at\s+([^:]+):(\d+):(\d+)/);
-        if (match) {
-          const file = match[1] || match[4];
-          const line = match[2] || match[5];
-          const column = match[3] || match[6];
-          
-          // Skip if this is still an internal lumberjack file
-          if (file.includes('Lumberjack.class.js')) {
-            continue;
-          }
-          
-          return { file, line, column };
+        // Skip if this is an internal lumberjack file
+        // Check for internal files by their actual names
+        const isInternalFile = 
+          file.includes('Lumberjack.class.js') ||
+          file.includes('LumberjackStyle.js') ||
+          file.includes('LumberjackStyles.js') ||
+          file.includes('config.js') ||
+          file.includes('constants.js') ||
+          file.includes('utils.js') ||
+          file.includes('node_modules') ||
+          file.includes('internal/');
+        
+        // Also skip if it's index.js from src (internal entry point)
+        const isInternalIndex = file.includes('index.js') && file.includes('src/');
+        
+        if (isInternalFile || isInternalIndex) {
+          continue;
         }
+        
+        return { file, line, column };
       }
     } catch (e) {
       // Silently fail if stack trace is unavailable
@@ -530,7 +555,7 @@ class Lumberjack {
     const indent = this._getIndent();
     const configPrefix = this.#config.prefix?.trim();
     const hasPrefix = styleObj.prefix && styleObj.prefix !== "";
-    const callerLocation = this._getCallerLocation();
+    const callerLocation = this.#config.showCallerLocation ? this._getCallerLocation() : null;
 
     if (!Lumberjack.#isBrowser && chalk) {
       // Terminal mode (Node.js with chalk)
@@ -648,7 +673,7 @@ class Lumberjack {
 
     const styleObj = this._getStyle(style);
     const indent = this._getIndent();
-    const callerLocation = this._getCallerLocation();
+    const callerLocation = this.#config.showCallerLocation ? this._getCallerLocation() : null;
     const parts = [];
     const styles = [];
 
@@ -844,6 +869,16 @@ class Lumberjack {
 
   set enabled(value) {
     this.#config.enabled = Boolean(value);
+  }
+
+  getConfig() {
+    return {
+      enabled: this.#config.enabled,
+      showCallerLocation: this.#config.showCallerLocation,
+      prefix: this.#config.prefix,
+      styles: this.#config.styles,
+      scope: this.#config.scope,
+    };
   }
 }
 

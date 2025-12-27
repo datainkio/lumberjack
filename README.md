@@ -70,10 +70,43 @@ const api = Lumberjack.createScoped("API", { prefix: "🌐", color: "#60A5FA" })
 api.trace("Request started", { url: "/health" }, "brief", "headsup");
 ```
 
+### Configuration options
+
+```js
+import lumberjack from "@datainkio/lumberjack";
+
+// Configure with multiple options
+lumberjack.configure({
+  enabled: true,
+  prefix: "[APP] ",
+  showCallerLocation: true,  // Show file:line location (default: true)
+});
+
+// Disable caller location display
+lumberjack.configure({
+  showCallerLocation: false,
+});
+```
+
 ## Modes and styles
 
 - **Modes**: `"brief"` (default), `"verbose"`, `"silent"`
 - **Style names**: `"default"`, `"headsup"`, `"success"`, `"error"`
+
+## Debugging in Browser DevTools
+
+When debugging code that uses Lumberjack, you can **ignore Lumberjack library files** to skip over internal implementation details and focus on your own code.
+
+### How to Ignore Lumberjack Scripts
+
+1. Open DevTools (F12) → Settings (⚙️ icon, bottom right)
+2. Go to the **Ignore List** tab
+3. Add these patterns to ignore all Lumberjack scripts:
+   - `Lumberjack`
+   - `index.js`
+4. DevTools will now automatically skip over these files when stepping through code
+
+This makes debugging much easier by hiding library internals and jumping directly to your application code.
 
 ## Development
 

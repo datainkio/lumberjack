@@ -1,8 +1,8 @@
 import { Lumberjack as t } from "./Lumberjack.class.js";
 import { default as i } from "./LumberjackStyle.js";
-import { default as f } from "./LumberjackStyles.js";
+import { default as p } from "./LumberjackStyles.js";
 import { DEFAULT_MODE as o, DEFAULT_STYLE as c } from "./config.js";
-const d = {
+const u = {
   /**
    * Log message with optional data
    * @param {string} message - Description
@@ -52,11 +52,14 @@ const d = {
   },
   set enabled(e) {
     t.getInstance().enabled = e;
+  },
+  get config() {
+    return t.getInstance().getConfig();
   }
 };
 export {
   t as Lumberjack,
   i as LumberjackStyle,
-  f as LumberjackStyles,
-  d as default
+  p as LumberjackStyles,
+  u as default
 };

@@ -25,6 +25,22 @@
       All other buttons will do nothing until logging is enabled.
     </div>
 
+    <div class="note" style="background: #1f2937; border-left-color: #60a5fa">
+      <strong>🔍 Debugging Tip:</strong> To skip over Lumberjack internals when stepping through code in DevTools:
+      <ol style="margin: 0.5rem 0; padding-left: 1.5rem">
+        <li>Open DevTools (F12) → Settings (⚙️ icon, bottom right)</li>
+        <li>Go to <strong>Ignore List</strong> tab</li>
+        <li>Add these patterns to ignore all Lumberjack scripts:
+          <ul style="margin: 0.25rem 0; padding-left: 1.5rem">
+            <li><code>Lumberjack</code></li>
+            <li><code>index.js</code></li>
+          </ul>
+        </li>
+        <li>Now when stepping through code, DevTools will automatically skip over Lumberjack internals and jump directly to your code</li>
+      </ol>
+      This makes debugging much easier by hiding library implementation details without manual blackboxing.
+    </div>
+
     <div class="demo-section" style="border-left-color: #fbbf24">
       <h2>⚠️ 1. ENABLE LOGGER FIRST</h2>
       <button
@@ -32,6 +48,9 @@
         style="background: #fbbf24; font-weight: bold; font-size: 1.1rem"
       >
         🚀 Enable Logger (Click Me First!)
+      </button>
+      <button id="btn-toggle-caller-location" style="background: #60a5fa; font-weight: bold">
+        📍 Caller Location Enabled (Click to Toggle)
       </button>
       <button id="btn-basic">Log Standard Message</button>
       <button id="btn-headsup">Log Headsup</button>
@@ -217,7 +236,7 @@ lumberjack.trace("Back to standard style (gray, no prefix)",
       <button id="btn-configure">Configure with Prefix</button>
 
       <div class="code-section">
-        <div class="code-label">Code Example:</div>
+        <div class="code-label">Code Examples:</div>
         <pre><code>// Configure global settings
 lumberjack.configure({
   enabled: true,
@@ -225,7 +244,16 @@ lumberjack.configure({
 });
 
 // Prefix will appear on all subsequent messages
-lumberjack.trace("Logger reconfigured with prefix");</code></pre>
+lumberjack.trace("Logger reconfigured with prefix");
+
+// Disable caller location display (enabled by default)
+lumberjack.configure({
+  enabled: true,
+  showCallerLocation: false,
+});
+
+// Messages will no longer show file:line location
+lumberjack.trace("Message without caller location");</code></pre>
       </div>
     </div>
   </body>

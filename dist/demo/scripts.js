@@ -1,7 +1,7 @@
 import e from "../index.js";
-import { Lumberjack as a } from "../Lumberjack.class.js";
+import { Lumberjack as l } from "../Lumberjack.class.js";
 import d from "../LumberjackStyle.js";
-const o = {
+const a = {
   user: "alice",
   items: [1, 2, 3, 4, 5, 6, 7, 8],
   config: { theme: "dark", timeout: 5e3 },
@@ -19,8 +19,22 @@ n.addEventListener("click", () => {
   ), c();
 });
 c();
+const o = document.getElementById("btn-toggle-caller-location");
+function i() {
+  e.config.showCallerLocation ? (o.textContent = "📍 Caller Location Enabled (Click to Disable)", o.style.background = "#60a5fa") : (o.textContent = "📍 Caller Location Disabled (Click to Enable)", o.style.background = "#ef4444");
+}
+o.addEventListener("click", () => {
+  e.configure({
+    showCallerLocation: !e.config.showCallerLocation
+  }), e.config.showCallerLocation ? e.trace(
+    "✅ Caller location enabled! File:line will now appear in logs."
+  ) : e.trace(
+    "⚠️ Caller location disabled - file:line will no longer appear in logs."
+  ), i();
+});
+i();
 document.getElementById("btn-basic").addEventListener("click", () => {
-  e.trace("Standard message", o, "brief", "standard");
+  e.trace("Standard message", a, "brief", "standard");
 });
 document.getElementById("btn-headsup").addEventListener("click", () => {
   e.trace(
@@ -49,14 +63,14 @@ document.getElementById("btn-error-style").addEventListener("click", () => {
 document.getElementById("btn-brief").addEventListener("click", () => {
   e.trace(
     "Brief mode (truncates arrays/objects)",
-    o,
+    a,
     "brief"
   );
 });
 document.getElementById("btn-verbose").addEventListener("click", () => {
   e.trace(
     "Verbose mode (expands all data)",
-    o,
+    a,
     "verbose"
   );
 });
@@ -80,14 +94,14 @@ document.getElementById("btn-group").addEventListener("click", async () => {
   }), e.trace("After group (indent restored)");
 });
 document.getElementById("btn-scoped").addEventListener("click", () => {
-  const t = a.createScoped("UI", {
+  const t = l.createScoped("UI", {
     prefix: "🎨",
     color: "#10B981"
   });
   t.trace("Component mounted"), t.trace("State updated", { count: 42 });
 });
 document.getElementById("btn-scoped-group").addEventListener("click", async () => {
-  const t = a.createScoped("API", {
+  const t = l.createScoped("API", {
     prefix: "🌐",
     color: "#F59E0B"
   });

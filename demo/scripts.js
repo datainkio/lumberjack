@@ -44,6 +44,40 @@
       // Initialize button state
       updateToggleButton();
 
+      // 2. Toggle Caller Location Enable/Disable
+      const toggleCallerLocationBtn = document.getElementById("btn-toggle-caller-location");
+
+      function updateCallerLocationButton() {
+        if (lumberjack.config.showCallerLocation) {
+          toggleCallerLocationBtn.textContent = "📍 Caller Location Enabled (Click to Disable)";
+          toggleCallerLocationBtn.style.background = "#60a5fa";
+        } else {
+          toggleCallerLocationBtn.textContent = "📍 Caller Location Disabled (Click to Enable)";
+          toggleCallerLocationBtn.style.background = "#ef4444";
+        }
+      }
+
+      toggleCallerLocationBtn.addEventListener("click", () => {
+        lumberjack.configure({
+          showCallerLocation: !lumberjack.config.showCallerLocation,
+        });
+
+        if (lumberjack.config.showCallerLocation) {
+          lumberjack.trace(
+            "✅ Caller location enabled! File:line will now appear in logs."
+          );
+        } else {
+          lumberjack.trace(
+            "⚠️ Caller location disabled - file:line will no longer appear in logs."
+          );
+        }
+
+        updateCallerLocationButton();
+      });
+
+      // Initialize button state
+      updateCallerLocationButton();
+
       document.getElementById("btn-basic").addEventListener("click", () => {
         lumberjack.trace("Standard message", sampleData, "brief", "standard");
       });
