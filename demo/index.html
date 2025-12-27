@@ -50,20 +50,20 @@
 
       <div class="code-section">
         <div class="code-label">Code Examples:</div>
-        <pre><code>// Toggle logger
-lumberjack.enabled = !lumberjack.enabled;
+        <pre><code>lumberjack.enabled = !lumberjack.enabled;
+// ✅ Logger enabled! Check console for all subsequent logs.
 
-// Standard message
 lumberjack.trace("Standard message", sampleData, "brief", "default");
+// Standard message { user: "alice", items: [1, 2, 3, ...], config: {...}, nested: {...} }
 
-// Headsup (⚡ amber)
 lumberjack.trace("Important notification", { priority: "high" }, "brief", "headsup");
+// ⚡ Important notification { priority: "high" }
 
-// Success (✓ green)
 lumberjack.trace("Operation completed", { duration: "1.2s" }, "brief", "success");
+// ✓ Operation completed { duration: "1.2s" }
 
-// Error (❌ red)
-lumberjack.trace("Something went wrong", { code: 500 }, "brief", "error");</code></pre>
+lumberjack.trace("Something went wrong", { code: 500 }, "brief", "error");
+// ❌ Something went wrong { code: 500 }</code></pre>
       </div>
     </div>
 
@@ -74,11 +74,15 @@ lumberjack.trace("Something went wrong", { code: 500 }, "brief", "error");</code
 
       <div class="code-section">
         <div class="code-label">Code Examples:</div>
-        <pre><code>// Brief mode - truncates long arrays/objects
-lumberjack.trace("Brief mode (truncates arrays/objects)", sampleData, "brief");
+        <pre><code>lumberjack.trace("Brief mode (truncates arrays/objects)", sampleData, "brief");
+// Brief mode (truncates arrays/objects) { user: "alice", items: [1, 2, 3, ...], config: {...} }
 
-// Verbose mode - expands all data with formatting
-lumberjack.trace("Verbose mode (expands all data)", sampleData, "verbose");</code></pre>
+lumberjack.trace("Verbose mode (expands all data)", sampleData, "verbose");
+// Verbose mode (expands all data)
+//   user: "alice"
+//   items: [1, 2, 3, 4, 5, 6, 7, 8]
+//   config: { theme: "dark", timeout: 5000 }
+//   nested: { deep: { value: "hello" } }</code></pre>
       </div>
     </div>
 
@@ -88,12 +92,15 @@ lumberjack.trace("Verbose mode (expands all data)", sampleData, "verbose");</cod
 
       <div class="code-section">
         <div class="code-label">Code Example:</div>
-        <pre><code>// Error objects auto-detect and apply 'error' style
-try {
+        <pre><code>try {
   throw new Error("Simulated runtime error");
 } catch (err) {
   // No need to specify 'error' style - auto-detected!
   lumberjack.trace("Caught exception (auto-detects Error):", err, "verbose");
+  // ❌ Caught exception (auto-detects Error):
+  //   Error: Simulated runtime error
+  //   at <anonymous>:2:9
+  //   [full stack trace...]
 }</code></pre>
       </div>
     </div>
@@ -107,22 +114,38 @@ try {
         <div class="code-label">Code Examples:</div>
         <pre><code>// Manual indentation
 lumberjack.trace("Level 0");
+// Level 0
+
 lumberjack.indent();
 lumberjack.trace("Level 1 (indented)");
+//   Level 1 (indented)
+
 lumberjack.indent();
 lumberjack.trace("Level 2 (double indent)");
+//     Level 2 (double indent)
+
 lumberjack.outdent();
 lumberjack.trace("Back to Level 1");
+//   Back to Level 1
+
 lumberjack.resetIndent();
 lumberjack.trace("Reset to Level 0");
+// Reset to Level 0
 
 // Grouped logs (auto-indent/outdent)
 await lumberjack.group(async () => {
   lumberjack.trace("Parent operation started");
+  // :::::::::::::::::::
+  // Parent operation started
+  
   lumberjack.trace("Child operation 1 (auto-indented)");
+  //   Child operation 1 (auto-indented)
+  
   lumberjack.trace("Child operation 2 (auto-indented)");
+  //   Child operation 2 (auto-indented)
 });
-lumberjack.trace("After group (indent restored)");</code></pre>
+lumberjack.trace("After group (indent restored)");
+// After group (indent restored)</code></pre>
       </div>
     </div>
 
@@ -133,22 +156,25 @@ lumberjack.trace("After group (indent restored)");</code></pre>
 
       <div class="code-section">
         <div class="code-label">Code Examples:</div>
-        <pre><code>// Create scoped logger with custom prefix and color
-const uiLogger = Lumberjack.createScoped("UI", {
+        <pre><code>const uiLogger = Lumberjack.createScoped("UI", {
   prefix: "🎨",
   color: "#10B981",
 });
 uiLogger.trace("Component mounted");
+// [UI] Component mounted
 uiLogger.trace("State updated", { count: 42 });
+// [UI] State updated { count: 42 }
 
-// Scoped logger with grouping
 const apiLogger = Lumberjack.createScoped("API", {
   prefix: "🌐",
   color: "#F59E0B",
 });
 await apiLogger.group(async () => {
   apiLogger.trace("Fetching data...");
+  // :::::::::::::::::::
+  // [API] Fetching data...
   apiLogger.trace("Processing response...");
+  //   [API] Processing response...
 });</code></pre>
       </div>
     </div>
@@ -160,14 +186,16 @@ await apiLogger.group(async () => {
 
       <div class="code-section">
         <div class="code-label">Code Examples:</div>
-        <pre><code>// Brief outline - just names and descriptions
-lumberjack.showScriptOutline("Deploy Pipeline", [
+        <pre><code>lumberjack.showScriptOutline("Deploy Pipeline", [
   { name: "build", description: "Bundle assets" },
   { name: "test", description: "Run test suite" },
   { name: "upload", description: "Deploy to CDN" },
 ], "brief", "headsup");
+// ⚡ Deploy Pipeline
+//   build: Bundle assets
+//   test: Run test suite
+//   upload: Deploy to CDN
 
-// Verbose outline - includes scripts, triggers, dependencies
 lumberjack.showScriptOutline("CI/CD Workflow", [
   {
     name: "lint",
@@ -188,7 +216,18 @@ lumberjack.showScriptOutline("CI/CD Workflow", [
     dependencies: ["build"],
     triggers: ["main"],
   },
-], "verbose", "headsup");</code></pre>
+], "verbose", "headsup");
+// ⚡ CI/CD Workflow
+//   lint: Check code style
+//     script: npm run lint
+//     triggers: ["push", "pull_request"]
+//   build: Compile TypeScript
+//     script: tsc --project tsconfig.json
+//     dependencies: ["lint"]
+//   deploy: Upload artifacts
+//     script: aws s3 sync dist/ s3://bucket
+//     dependencies: ["build"]
+//     triggers: ["main"]</code></pre>
       </div>
     </div>
 
@@ -200,25 +239,26 @@ lumberjack.showScriptOutline("CI/CD Workflow", [
 
       <div class="code-section">
         <div class="code-label">Code Examples:</div>
-        <pre><code>// Create custom style instance
-const purpleStyle = new LumberjackStyle("#9333EA", "🎨");
+        <pre><code>const purpleStyle = new LumberjackStyle("#9333EA", "🎨");
 
-// Use once for a single message
 lumberjack.trace(
   "Single custom purple message (next message will be standard)",
   { theme: "royal" },
   "brief",
   purpleStyle
 );
+// 🎨 Single custom purple message (next message will be standard) { theme: "royal" }
 
-// Pass to multiple calls to use consistently
 lumberjack.trace("Purple style message 1", { count: 1 }, "brief", purpleStyle);
+// 🎨 Purple style message 1 { count: 1 }
 lumberjack.trace("Purple style message 2", { count: 2 }, "brief", purpleStyle);
+// 🎨 Purple style message 2 { count: 2 }
 lumberjack.trace("Purple style message 3", { count: 3 }, "brief", purpleStyle);
+// 🎨 Purple style message 3 { count: 3 }
 
-// Reset to standard style
 lumberjack.trace("Back to standard style (gray, no prefix)", 
-  { reset: true }, "brief", "standard");</code></pre>
+  { reset: true }, "brief", "standard");
+// Back to standard style (gray, no prefix) { reset: true }</code></pre>
       </div>
     </div>
 
@@ -228,23 +268,21 @@ lumberjack.trace("Back to standard style (gray, no prefix)",
 
       <div class="code-section">
         <div class="code-label">Code Examples:</div>
-        <pre><code>// Configure global settings
-lumberjack.configure({
+        <pre><code>lumberjack.configure({
   enabled: true,
   prefix: "[APP] ",
 });
 
-// Prefix will appear on all subsequent messages
 lumberjack.trace("Logger reconfigured with prefix");
+// [APP] Logger reconfigured with prefix
 
-// Disable caller location display (enabled by default)
 lumberjack.configure({
   enabled: true,
   showCallerLocation: false,
 });
 
-// Messages will no longer show file:line location
-lumberjack.trace("Message without caller location");</code></pre>
+lumberjack.trace("Message without caller location");
+// [APP] Message without caller location</code></pre>
       </div>
     </div>
     <script src="./scripts.js" type="module"></script>
