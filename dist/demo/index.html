@@ -4,7 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Lumberjack Browser Demo</title>
-    <link rel="stylesheet" href="./styles.css">
+    <script type="module" crossorigin src="/_virtual/modulepreload-polyfill.js"></script>
+    <script type="module" crossorigin src="/utils.js"></script>
+    <script type="module" crossorigin src="/LumberjackStyle.js"></script>
+    <script type="module" crossorigin src="/config.js"></script>
+    <script type="module" crossorigin src="/LumberjackStyles.js"></script>
+    <script type="module" crossorigin src="/constants.js"></script>
+    <script type="module" crossorigin src="/Lumberjack.class.js"></script>
+    <script type="module" crossorigin src="/index.js"></script>
+    <script type="module" crossorigin src="/demo/scripts.js"></script>
+    <link rel="stylesheet" crossorigin href="/lumberjack.css">
   </head>
   <body>
     <h1>🪓 Lumberjack Browser Demo</h1>
@@ -219,6 +228,5 @@ lumberjack.configure({
 lumberjack.trace("Logger reconfigured with prefix");</code></pre>
       </div>
     </div>
-    <script src="./scripts.js" type="module"></script>
   </body>
 </html>

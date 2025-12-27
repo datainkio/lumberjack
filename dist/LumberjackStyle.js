@@ -1,90 +1,49 @@
-/** @format */
-
-/**
- * LumberjackStyle - Immutable style configuration
- *
- * Represents color + optional prefix for lumberjack output.
- *
- * @example
- * const purple = new LumberjackStyle('#9333EA', '🎨');
- * lumberjack.trace('Message', data, 'brief', purple);
- *
- * @example Built-in styles (preferred)
- * import { LumberjackStyles } from './lumberjack/index.js';
- * LumberjackStyles.ERROR   // Red with ❌
- * LumberjackStyles.SUCCESS // Green with ✅
- * LumberjackStyles.HEADSUP // Amber with ⚡
- * LumberjackStyles.STANDARD // Gray, no prefix
- */
-
-import brighten from "./utils.js";
-class LumberjackStyle {
-  #color;
-  #prefix;
-  #fontWeight;
-  #fontSize;
-
+import n from "./utils.js";
+class h {
+  #e;
+  #r;
+  #t;
+  #i;
   /**
    * @param {string} color - Hex color (e.g., '#6B7280')
    * @param {string} [prefix=''] - Emoji/symbol prefix
    */
-  constructor(color, prefix = "", fontWeight = "normal", fontSize = 12) {
-    if (!color || typeof color !== "string" || !color.startsWith("#")) {
+  constructor(r, i = "", t = "normal", e = 12) {
+    if (!r || typeof r != "string" || !r.startsWith("#"))
       throw new Error(
         'LumberjackStyle requires valid hex color (e.g., "#6B7280")'
       );
-    }
-
-    if (fontWeight !== undefined && typeof fontWeight !== "string") {
+    if (t !== void 0 && typeof t != "string")
       throw new Error(
         "LumberjackStyle fontWeight must be a string when provided"
       );
-    }
-
-    if (fontSize !== undefined) {
-      if (
-        typeof fontSize !== "number" ||
-        !Number.isInteger(fontSize) ||
-        fontSize < 0
-      ) {
-        throw new Error(
-          "LumberjackStyle fontSize must be a non-negative integer when provided"
-        );
-      }
-    }
-
-    this.#color = color;
-    this.#prefix = prefix;
-    this.#fontWeight = fontWeight || "normal";
-    this.#fontSize = fontSize;
-
-    Object.freeze(this);
+    if (e !== void 0 && (typeof e != "number" || !Number.isInteger(e) || e < 0))
+      throw new Error(
+        "LumberjackStyle fontSize must be a non-negative integer when provided"
+      );
+    this.#e = r, this.#r = i, this.#t = t || "normal", this.#i = e, Object.freeze(this);
   }
-
   /** @returns {string} Hex color */
   get color() {
-    return this.#color;
+    return this.#e;
   }
-
   /** @returns {string} Brightened hex color */
   get color_secondary() {
-    return brighten(this.#color, 0.2);
+    return n(this.#e, 0.2);
   }
-
   /** @returns {string} Prefix emoji/symbol */
   get prefix() {
-    return this.#prefix;
+    return this.#r;
   }
-
   /** @returns {string} Font weight for browser console (e.g., 'normal'|'bold') */
   get fontWeight() {
-    return this.#fontWeight;
+    return this.#t;
   }
-
   /** @returns {number|undefined} Font size in pixels for browser console, if provided */
   get fontSize() {
-    return this.#fontSize;
+    return this.#i;
   }
 }
-
-export default LumberjackStyle;
+export {
+  h as default
+};

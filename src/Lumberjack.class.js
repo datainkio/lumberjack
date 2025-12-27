@@ -447,6 +447,50 @@ class Lumberjack {
   }
 
   /**
+   * Get caller location from stack trace
+   * @private
+   * @returns {Object|null} Object with file, line, and column, or null if unavailable
+   */
+  _getCallerLocation() {
+    try {
+      const err = new Error();
+      const stack = err.stack?.split('\n') || [];
+      
+      // Skip frames until we find one outside of lumberjack internal code
+      for (let i = 0; i < stack.length; i++) {
+        const frame = stack[i];
+        
+        // Skip internal frames (Lumberjack.class.js only - the core implementation)
+        if (frame.includes('Lumberjack.class.js') ||
+            frame.includes('node_modules') ||
+            frame.includes('internal/')) {
+          continue;
+        }
+        
+        // Extract file, line, and column from frame
+        // Format: "at functionName (file:line:column)" or "at file:line:column"
+        const match = frame.match(/\(([^:]+):(\d+):(\d+)\)|at\s+([^:]+):(\d+):(\d+)/);
+        if (match) {
+          const file = match[1] || match[4];
+          const line = match[2] || match[5];
+          const column = match[3] || match[6];
+          
+          // Skip if this is still an internal lumberjack file
+          if (file.includes('Lumberjack.class.js')) {
+            continue;
+          }
+          
+          return { file, line, column };
+        }
+      }
+    } catch (e) {
+      // Silently fail if stack trace is unavailable
+    }
+    
+    return null;
+  }
+
+  /**
    * Execute function with increased indentation
    * Adds separators and newlines before and after the group for visual separation
    * @param {Function} fn - Function to execute
@@ -486,6 +530,7 @@ class Lumberjack {
     const indent = this._getIndent();
     const configPrefix = this.#config.prefix?.trim();
     const hasPrefix = styleObj.prefix && styleObj.prefix !== "";
+    const callerLocation = this._getCallerLocation();
 
     if (!Lumberjack.#isBrowser && chalk) {
       // Terminal mode (Node.js with chalk)
@@ -498,6 +543,11 @@ class Lumberjack {
         if (!styleObj.prefix.match(/\s$/)) output += " ";
       }
       output += message;
+
+      if (callerLocation) {
+        const locationStr = `${callerLocation.file}:${callerLocation.line}`;
+        output += chalk.dim(` (${locationStr})`);
+      }
 
       if (obj != null) {
         output +=
@@ -545,6 +595,15 @@ class Lumberjack {
         }; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
       );
 
+      // Add caller location if available
+      if (callerLocation) {
+        const locationStr = `${callerLocation.file}:${callerLocation.line}`;
+        parts.push("%c " + locationStr);
+        styles.push(
+          `color: ${LumberjackStyles.DEFAULT.color}; font-weight: normal; font-size: 10px; opacity: 0.7`
+        );
+      }
+
       // Add data object if present
       if (obj != null) {
         if (mode === "brief") {
@@ -589,6 +648,7 @@ class Lumberjack {
 
     const styleObj = this._getStyle(style);
     const indent = this._getIndent();
+    const callerLocation = this._getCallerLocation();
     const parts = [];
     const styles = [];
 
@@ -636,6 +696,15 @@ class Lumberjack {
     styles.push(
       `color: ${messageColor}; font-weight: ${LumberjackStyles.DEFAULT.fontWeight}; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
     );
+
+    // Add caller location if available
+    if (callerLocation) {
+      const locationStr = `${callerLocation.file}:${callerLocation.line}`;
+      parts.push("%c " + locationStr);
+      styles.push(
+        `color: ${LumberjackStyles.DEFAULT.color}; font-weight: normal; font-size: 10px; opacity: 0.7`
+      );
+    }
 
     if (obj != null) {
       parts.push(

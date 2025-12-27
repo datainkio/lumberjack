@@ -302,6 +302,53 @@ describe('Lumberjack', () => {
     });
   });
 
+  describe('_getCallerLocation', () => {
+    let instance;
+
+    beforeEach(() => {
+      instance = Lumberjack.getInstance();
+    });
+
+    it('should return caller location object', () => {
+      const location = instance._getCallerLocation();
+      expect(location).toBeDefined();
+      if (location) {
+        expect(location.file).toBeDefined();
+        expect(location.line).toBeDefined();
+        expect(location.column).toBeDefined();
+      }
+    });
+
+    it('should have file property as string', () => {
+      const location = instance._getCallerLocation();
+      if (location) {
+        expect(typeof location.file).toBe('string');
+      }
+    });
+
+    it('should have line property as string', () => {
+      const location = instance._getCallerLocation();
+      if (location) {
+        expect(typeof location.line).toBe('string');
+      }
+    });
+
+    it('should have column property as string', () => {
+      const location = instance._getCallerLocation();
+      if (location) {
+        expect(typeof location.column).toBe('string');
+      }
+    });
+
+    it('should not return lumberjack internal files', () => {
+      const location = instance._getCallerLocation();
+      if (location) {
+        expect(location.file).not.toContain('Lumberjack.class.js');
+        expect(location.file).not.toContain('index.js');
+      }
+    });
+  });
+
   describe('_getStyle', () => {
     let instance;
 
