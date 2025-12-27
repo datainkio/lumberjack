@@ -1,38 +1,22 @@
-// Export plain style definitions (used to build LumberjackStyle instances)
-// Each value is an object: { color: '#hex', prefix: 'emoji' }
-
-export const DEFAULT_STYLE = {
+const o = {
   color: "#CCCCCC",
   prefix: "",
   fontWeight: "normal",
-  fontSize: 12,
+  fontSize: 12
+}, E = { color: "#F59E0B", prefix: "⚡" }, c = { color: "#EF4444", prefix: "❌" }, t = { color: "#10B981", prefix: "" }, n = "::::::::::::::::::", R = 2, _ = 3, T = 3, s = "brief", C = E, I = "─", S = 50, r = "#808080", D = 0.6;
+export {
+  D as BRIGHTEN_PERCENT,
+  s as DEFAULT_MODE,
+  o as DEFAULT_STYLE,
+  I as DIVIDER_CHAR,
+  r as DIVIDER_COLOR,
+  S as DIVIDER_LENGTH,
+  c as ERROR_STYLE,
+  E as HEADSUP_STYLE,
+  R as INDENT_SIZE,
+  _ as MAX_ARRAY_PREVIEW,
+  T as MAX_OBJECT_PREVIEW,
+  C as SCRIPT_OUTLINE_STYLE,
+  n as SEPARATOR,
+  t as SUCCESS_STYLE
 };
-// All params are optional; defaults will be used for any missing values
-export const HEADSUP_STYLE = { color: "#F59E0B", prefix: "⚡" };
-export const ERROR_STYLE = { color: "#EF4444", prefix: "❌" };
-export const SUCCESS_STYLE = { color: "#10B981", prefix: "" };
-
-// General separator used between groups
-export const SEPARATOR = "::::::::::::::::::";
-
-// Whitespace and preview sizing
-export const INDENT_SIZE = 2;
-export const MAX_ARRAY_PREVIEW = 3;
-export const MAX_OBJECT_PREVIEW = 3;
-
-// Defaults for trace mode
-export const DEFAULT_MODE = "brief";
-
-// Script outline defaults
-export const SCRIPT_OUTLINE_ICON = "📋";
-export const SCRIPT_OUTLINE_STYLE = HEADSUP_STYLE;
-
-// Divider settings used in outlines and headings
-export const DIVIDER_CHAR = "─";
-export const DIVIDER_LENGTH = 50;
-export const DIVIDER_COLOR = "#808080";
-
-// Script outline text and labels (can be customized or localized)
-// (Outline/label constants moved to `constants.js`)
-
-export const BRIGHTEN_PERCENT = 0.6;

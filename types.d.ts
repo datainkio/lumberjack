@@ -12,6 +12,7 @@ export interface LumberjackConfig {
   prefix?: string;
   styles?: Record<string, LumberjackStyle>;
   scope?: string | null;
+  showCallerLocation?: boolean;
 }
 
 export interface ScopedLoggerOptions {

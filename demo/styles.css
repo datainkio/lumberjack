@@ -1,0 +1,196 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        sans-serif;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0;
+    background: #1a1a1a;
+    color: #e0e0e0;
+}
+
+.sticky-header {
+    position: sticky;
+    top: 0;
+    background: #0f0f0f;
+    border-bottom: 2px solid #60a5fa;
+    padding: 1rem 2rem;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+}
+
+.sticky-header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.dropdown-container {
+    position: relative;
+}
+
+.dropdown-btn {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.dropdown-btn:hover {
+    background: #2563eb;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: #2d2d2d;
+    border: 1px solid #60a5fa;
+    border-radius: 4px;
+    margin-top: 0;
+    min-width: 280px;
+    display: none;
+    flex-direction: column;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.dropdown-menu.active {
+    display: flex;
+}
+
+.dropdown-item {
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    color: #e0e0e0;
+    border-bottom: 1px solid #3b3b3b;
+    transition: background 0.2s;
+}
+
+.dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.dropdown-item:hover {
+    background: #3b3b3b;
+}
+
+.dropdown-item input[type="checkbox"] {
+    display: none;
+}
+
+#logging-item {
+    color: #fbbf24;
+}
+
+#logging-item input:checked ~ span {
+    color: #10b981;
+}
+
+#caller-location-item {
+    color: #ef4444;
+}
+
+#caller-location-item input:checked ~ span {
+    color: #60a5fa;
+}
+
+body {
+    padding: 2rem;
+    padding-top: 0;
+}
+
+h1 {
+    color: #60a5fa;
+}
+
+h2 {
+    color: #34d399;
+    margin-top: 2rem;
+}
+
+.demo-section {
+    background: #2d2d2d;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    border-left: 4px solid #60a5fa;
+}
+
+button {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    margin: 0.5rem 0.5rem 0.5rem 0;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+button:hover {
+    background: #2563eb;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+.note {
+    background: #374151;
+    padding: 1rem;
+    border-radius: 4px;
+    margin: 1rem 0;
+    border-left: 3px solid #f59e0b;
+}
+
+code {
+    background: #374151;
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+    font-family: "Courier New", monospace;
+}
+
+pre {
+    background: #1f2937;
+    padding: 1rem;
+    border-radius: 4px;
+    overflow-x: auto;
+    border: 1px solid #4b5563;
+    margin: 1rem 0;
+}
+
+pre code {
+    background: transparent;
+    padding: 0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: #e5e7eb;
+}
+
+.code-section {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+}
+
+.code-label {
+    color: #9ca3af;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}

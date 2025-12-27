@@ -111,6 +111,10 @@ const lumberjack = {
   set enabled(value) {
     Lumberjack.getInstance().enabled = value;
   },
+
+  get config() {
+    return Lumberjack.getInstance().getConfig();
+  },
 };
 
 export default lumberjack;

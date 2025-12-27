@@ -107,9 +107,10 @@ class Lumberjack {
             prefix: "",
             styles: {},
             scope: null,
+            showCallerLocation: true,
             ...enabled,
           }
-        : { enabled, prefix: "", styles: {}, scope: null };
+        : { enabled, prefix: "", styles: {}, scope: null, showCallerLocation: true };
 
     this.enabled = this.#config.enabled;
     this.#indentLevel = 0;
@@ -447,6 +448,74 @@ class Lumberjack {
   }
 
   /**
+   * Get caller location from stack trace
+   * @private
+   * @returns {Object|null} Object with file, line, and column, or null if unavailable
+   */
+  _getCallerLocation() {
+    try {
+      const err = new Error();
+      const stack = err.stack?.split('\n') || [];
+      
+      // Skip frames until we find one outside of lumberjack internal code
+      for (let i = 0; i < stack.length; i++) {
+        const frame = stack[i];
+        
+        // Extract file, line, and column from frame
+        // Look for the pattern: (file:line:column) or at file:line:column
+        // where file can be a path or URL
+        let file, line, column;
+        
+        // Try to match pattern with parentheses first: "at name (file:line:col)"
+        let match = frame.match(/\(([^)]+):(\d+):(\d+)\)/);
+        if (match) {
+          file = match[1];
+          line = match[2];
+          column = match[3];
+        } else {
+          // Try pattern without parentheses: "at file:line:col"
+          // This regex looks for a path/URL followed by :digits:digits at the end
+          match = frame.match(/at\s+(.+):(\d+):(\d+)$/);
+          if (match) {
+            file = match[1];
+            line = match[2];
+            column = match[3];
+          }
+        }
+        
+        if (!file || !line || !column) {
+          continue;
+        }
+        
+        // Skip if this is an internal lumberjack file
+        // Check for internal files by their actual names
+        const isInternalFile = 
+          file.includes('Lumberjack.class.js') ||
+          file.includes('LumberjackStyle.js') ||
+          file.includes('LumberjackStyles.js') ||
+          file.includes('config.js') ||
+          file.includes('constants.js') ||
+          file.includes('utils.js') ||
+          file.includes('node_modules') ||
+          file.includes('internal/');
+        
+        // Also skip if it's index.js from src (internal entry point)
+        const isInternalIndex = file.includes('index.js') && file.includes('src/');
+        
+        if (isInternalFile || isInternalIndex) {
+          continue;
+        }
+        
+        return { file, line, column };
+      }
+    } catch (e) {
+      // Silently fail if stack trace is unavailable
+    }
+    
+    return null;
+  }
+
+  /**
    * Execute function with increased indentation
    * Adds separators and newlines before and after the group for visual separation
    * @param {Function} fn - Function to execute
@@ -486,6 +555,7 @@ class Lumberjack {
     const indent = this._getIndent();
     const configPrefix = this.#config.prefix?.trim();
     const hasPrefix = styleObj.prefix && styleObj.prefix !== "";
+    const callerLocation = this.#config.showCallerLocation ? this._getCallerLocation() : null;
 
     if (!Lumberjack.#isBrowser && chalk) {
       // Terminal mode (Node.js with chalk)
@@ -498,6 +568,11 @@ class Lumberjack {
         if (!styleObj.prefix.match(/\s$/)) output += " ";
       }
       output += message;
+
+      if (callerLocation) {
+        const locationStr = `${callerLocation.file}:${callerLocation.line}`;
+        output += chalk.dim(` (${locationStr})`);
+      }
 
       if (obj != null) {
         output +=
@@ -545,6 +620,15 @@ class Lumberjack {
         }; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
       );
 
+      // Add caller location if available
+      if (callerLocation) {
+        const locationStr = `${callerLocation.file}:${callerLocation.line}`;
+        parts.push("%c " + locationStr);
+        styles.push(
+          `color: ${LumberjackStyles.DEFAULT.color}; font-weight: normal; font-size: 10px; opacity: 0.7`
+        );
+      }
+
       // Add data object if present
       if (obj != null) {
         if (mode === "brief") {
@@ -589,6 +673,7 @@ class Lumberjack {
 
     const styleObj = this._getStyle(style);
     const indent = this._getIndent();
+    const callerLocation = this.#config.showCallerLocation ? this._getCallerLocation() : null;
     const parts = [];
     const styles = [];
 
@@ -636,6 +721,15 @@ class Lumberjack {
     styles.push(
       `color: ${messageColor}; font-weight: ${LumberjackStyles.DEFAULT.fontWeight}; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
     );
+
+    // Add caller location if available
+    if (callerLocation) {
+      const locationStr = `${callerLocation.file}:${callerLocation.line}`;
+      parts.push("%c " + locationStr);
+      styles.push(
+        `color: ${LumberjackStyles.DEFAULT.color}; font-weight: normal; font-size: 10px; opacity: 0.7`
+      );
+    }
 
     if (obj != null) {
       parts.push(
@@ -775,6 +869,16 @@ class Lumberjack {
 
   set enabled(value) {
     this.#config.enabled = Boolean(value);
+  }
+
+  getConfig() {
+    return {
+      enabled: this.#config.enabled,
+      showCallerLocation: this.#config.showCallerLocation,
+      prefix: this.#config.prefix,
+      styles: this.#config.styles,
+      scope: this.#config.scope,
+    };
   }
 }
 

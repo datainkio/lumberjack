@@ -27,6 +27,7 @@
   },
   "files": [
     "dist/**",
+    "!dist/demo/**",
     "types.d.ts"
   ],
   "peerDependencies": {
@@ -41,10 +42,19 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "node ./scripts/build.js",
-    "docs:vendor": "node ./scripts/sync-docs-vendor.js",
+    "dev": "vite serve demo",
+    "build": "vite build",
     "prepublishOnly": "npm run build",
-    "lint": "node --check ./dist/index.js && node --check ./dist/Lumberjack.class.js && node --check ./dist/LumberjackStyle.js && node --check ./dist/LumberjackStyles.js && node --check ./dist/config.js && node --check ./dist/constants.js && node --check ./dist/utils.js"
+    "lint": "node --check ./dist/index.js && node --check ./dist/Lumberjack.class.js && node --check ./dist/LumberjackStyle.js && node --check ./dist/LumberjackStyles.js && node --check ./dist/config.js && node --check ./dist/constants.js && node --check ./dist/utils.js",
+    "test": "vitest run",
+    "test:ui": "vitest --ui",
+    "test:dev": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "devDependencies": {
+    "@vitest/ui": "^4.0.16",
+    "vite": "^7.3.0",
+    "vitest": "^4.0.16"
   },
   "publishConfig": {
     "access": "restricted"

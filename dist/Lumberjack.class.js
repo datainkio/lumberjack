@@ -1,194 +1,79 @@
-/** @format */
-
-import LumberjackStyles from "./LumberjackStyles.js";
-import {
-  INDENT_SIZE,
-  MAX_ARRAY_PREVIEW,
-  MAX_OBJECT_PREVIEW,
-  DEFAULT_MODE,
-  DEFAULT_STYLE,
-  SCRIPT_OUTLINE_ICON,
-  SCRIPT_OUTLINE_STYLE,
-  DIVIDER_CHAR,
-  DIVIDER_LENGTH,
-  DIVIDER_COLOR,
-  BRIGHTEN_PERCENT,
-} from "./config.js";
-import {
-  SCRIPT_OUTLINE_TITLE,
-  SCRIPT_OUTLINE_COUNT_TEMPLATE,
-  EXECUTION_BEGIN_TITLE,
-  EXECUTION_BEGIN_SUBTEXT,
-  LABEL_EXECUTES,
-  LABEL_TRIGGERS,
-  LABEL_REQUIRES,
-  GROUP_START_SUFFIX,
-  GROUP_COMPLETE_SUFFIX,
-} from "./constants.js";
-import brighten from "./utils.js";
-
-// Conditional chalk import - only available in Node.js environment
-let chalk = null;
+import t from "./LumberjackStyles.js";
+import { BRIGHTEN_PERCENT as x, DEFAULT_MODE as g, DEFAULT_STYLE as E, SCRIPT_OUTLINE_STYLE as w, DIVIDER_COLOR as T, DIVIDER_CHAR as y, INDENT_SIZE as A, MAX_ARRAY_PREVIEW as U, MAX_OBJECT_PREVIEW as L, DIVIDER_LENGTH as z } from "./config.js";
+import { GROUP_START_SUFFIX as I, GROUP_COMPLETE_SUFFIX as _, SCRIPT_OUTLINE_TITLE as C, SCRIPT_OUTLINE_COUNT_TEMPLATE as R, LABEL_EXECUTES as O, LABEL_TRIGGERS as W, LABEL_REQUIRES as m, EXECUTION_BEGIN_TITLE as P, EXECUTION_BEGIN_SUBTEXT as V } from "./constants.js";
+import B from "./utils.js";
+let p = null;
 try {
-  // Dynamic import for Node.js environment
-  if (
-    typeof process !== "undefined" &&
-    process.versions &&
-    process.versions.node
-  ) {
-    chalk = (await import("chalk")).default;
-  }
-} catch (err) {
-  // Chalk not available - browser environment
-  chalk = null;
+  typeof process < "u" && process.versions && process.versions.node && (p = (await import("chalk")).default);
+} catch {
+  p = null;
 }
-
-/**
- * Lumberjack - Singleton debug logging utility
- *
- * Terminal/console output with semantic styling, auto-indent, and Error detection.
- * Auto-detects environment: Node.js (terminal with chalk) or browser (console with CSS).
- * Use via singleton: `import lumberjack from './lumberjack/index.js'`
- *
- * @class Lumberjack
- * @singleton
- *
- * @example Terminal mode (Node.js)
- * // Uses chalk for colored terminal output
- * lumberjack.trace('Build started', null, 'brief', 'headsup');
- *
- * @example Browser mode (runtime)
- * // Uses console.log with %c CSS styling
- * lumberjack.trace('Animation init', data, 'verbose', 'success');
- *
- * @example Auto-error detection
- * try {
- *   riskyOp();
- * } catch (err) {
- *   lumberjack.trace('Failed:', err, 'verbose'); // Auto-applies error style + stack trace
- * }
- *
- * @example Hierarchical logging
- * await lumberjack.group(async () => {
- *   lumberjack.trace('Parent', data);
- *   // Auto-indented nested logs
- * });
- *
- * @example Custom styles
- * const purple = new LumberjackStyle('#9333EA', '🎨');
- * lumberjack.trace('Message', data, 'brief', purple);
- *
- * @example Scoped logger
- * const scoped = Lumberjack.createScoped('Director');
- * scoped.trace('Init'); // Output: [Director] Init
- */
-class Lumberjack {
-  static #instance = null;
-  static #initialized = false;
-  static #isBrowser =
-    typeof window !== "undefined" && typeof document !== "undefined";
-
+class u {
+  static #n = null;
+  static #o = !1;
+  static #i = typeof window < "u" && typeof document < "u";
   // Private instance fields
-  #indentLevel = 0;
-  #config = {};
-
+  #t = 0;
+  #e = {};
   /**
    * Private constructor - use static methods instead
    * @param {boolean|Object} enabled - Whether logging is enabled, or config object
    */
-  constructor(enabled = false) {
-    if (Lumberjack.#instance) return Lumberjack.#instance;
-
-    // Handle both boolean and config object parameters
-    this.#config =
-      typeof enabled === "object"
-        ? {
-            enabled: enabled.enabled ?? false,
-            prefix: "",
-            styles: {},
-            scope: null,
-            ...enabled,
-          }
-        : { enabled, prefix: "", styles: {}, scope: null };
-
-    this.enabled = this.#config.enabled;
-    this.#indentLevel = 0;
-    Lumberjack.#instance = this;
-
-    // Display initialization message only once
-    if (!Lumberjack.#initialized) {
-      const statusStyle = this.enabled
-        ? LumberjackStyles.SUCCESS
-        : LumberjackStyles.ERROR;
-      const statusColor = statusStyle.color;
-      const statusText = this.enabled ? "enabled" : "disabled";
-
-      if (!Lumberjack.#isBrowser && chalk) {
-        console.log(
-          `${chalk.hex(LumberjackStyles.HEADSUP.color)(
-            "Lumberjack"
-          )} initialized: ${chalk.hex(statusColor)(statusText)}`
-        );
-      } else {
-        console.log(
-          "%cLumberjack %cinitialized %c",
-          `color: ${LumberjackStyles.HEADSUP.color}; font-weight: ${
-            LumberjackStyles.HEADSUP.fontWeight ||
-            LumberjackStyles.DEFAULT.fontWeight
-          }; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`,
-          `color: inherit; font-weight: ${LumberjackStyles.DEFAULT.fontWeight}; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`,
-          `color: ${statusColor}; font-weight: ${
-            statusStyle.fontWeight || LumberjackStyles.DEFAULT.fontWeight
-          }; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
-        );
-      }
-
-      Lumberjack.#initialized = true;
+  constructor(e = !1) {
+    if (u.#n) return u.#n;
+    if (this.#e = typeof e == "object" ? {
+      enabled: e.enabled ?? !1,
+      prefix: "",
+      styles: {},
+      scope: null,
+      showCallerLocation: !0,
+      ...e
+    } : { enabled: e, prefix: "", styles: {}, scope: null, showCallerLocation: !0 }, this.enabled = this.#e.enabled, this.#t = 0, u.#n = this, !u.#o) {
+      const s = this.enabled ? t.SUCCESS : t.ERROR, n = s.color, r = this.enabled ? "enabled" : "disabled";
+      !u.#i && p ? console.log(
+        `${p.hex(t.HEADSUP.color)(
+          "Lumberjack"
+        )} initialized: ${p.hex(n)(r)}`
+      ) : console.log(
+        "%cLumberjack %cinitialized %c",
+        `color: ${t.HEADSUP.color}; font-weight: ${t.HEADSUP.fontWeight || t.DEFAULT.fontWeight}; font-size: ${t.DEFAULT.fontSize}px`,
+        `color: inherit; font-weight: ${t.DEFAULT.fontWeight}; font-size: ${t.DEFAULT.fontSize}px`,
+        `color: ${n}; font-weight: ${s.fontWeight || t.DEFAULT.fontWeight}; font-size: ${t.DEFAULT.fontSize}px`
+      ), u.#o = !0;
     }
   }
-
   /**
    * Apply color styling based on environment
    * @private
    */
-  #style(color, text, options = {}) {
-    if (!Lumberjack.#isBrowser && chalk) {
-      let styled = chalk.hex(color)(text);
-      if (options.bold) styled = chalk.bold(styled);
-      return styled;
+  #s(e, s, n = {}) {
+    if (!u.#i && p) {
+      let r = p.hex(e)(s);
+      return n.bold && (r = p.bold(r)), r;
     }
-    return text;
+    return s;
   }
-
   /**
    * Get the singleton instance
    * @param {boolean} enabled - Whether logging is enabled (only used on first call)
    * @returns {Lumberjack} The singleton Lumberjack instance
    */
-  static getInstance(enabled) {
-    if (!Lumberjack.#instance) {
-      const isEnabled =
-        enabled ??
-        (typeof process !== "undefined" && process.env
-          ? process.env.DEBUG === "true"
-          : false);
-      Lumberjack.#instance = new Lumberjack(isEnabled);
+  static getInstance(e) {
+    if (!u.#n) {
+      const s = e ?? (typeof process < "u" && process.env ? process.env.DEBUG === "true" : !1);
+      u.#n = new u(s);
     }
-    return Lumberjack.#instance;
+    return u.#n;
   }
-
   /**
    * Configure the Lumberjack instance with new options
    * @param {Object} options - Configuration options
    * @returns {Lumberjack} The configured Lumberjack instance
    */
-  static configure(options = {}) {
-    const instance = Lumberjack.getInstance();
-    Object.assign(instance.#config, options);
-    if (options.enabled !== undefined) instance.enabled = options.enabled;
-    return instance;
+  static configure(e = {}) {
+    const s = u.getInstance();
+    return Object.assign(s.#e, e), e.enabled !== void 0 && (s.enabled = e.enabled), s;
   }
-
   /**
    * Create a scoped logger that prefixes all messages with scope information
    * Maintains singleton benefits while allowing service-specific customization
@@ -206,116 +91,80 @@ class Lumberjack {
    * tailwindLogger.trace('CSS compilation started'); // "[Tailwind] CSS compilation started"
    * figmaLogger.trace('Design tokens fetched');      // "🎨 [Figma] Design tokens fetched" (green scope)
    */
-  static createScoped(scope, options = {}) {
-    const instance = Lumberjack.getInstance();
-    const { color: scopeColor, prefix } = options;
-    const rawScopePrefix = prefix ? `${prefix} [${scope}]` : `[${scope}]`;
-    const brightScopeColor = scopeColor
-      ? brighten(scopeColor, BRIGHTEN_PERCENT)
-      : null;
-
+  static createScoped(e, s = {}) {
+    const n = u.getInstance(), { color: r, prefix: o } = s, l = o ? `${o} [${e}]` : `[${e}]`, h = r ? B(r, x) : null;
     return {
-      trace: (
-        message,
-        obj = null,
-        mode = DEFAULT_MODE,
-        style = DEFAULT_STYLE
-      ) => {
-        if (scopeColor && Lumberjack.#isBrowser) {
-          // Browser: scope prefix uses brightened color, message uses original scope color
-          return instance._traceScopedBrowser(
-            rawScopePrefix,
-            message,
-            obj,
-            mode,
-            style,
-            scopeColor, // original for message
-            brightScopeColor // brightened for scope prefix
+      trace: (i, a = null, f = g, c = E) => {
+        if (r && u.#i)
+          return n._traceScopedBrowser(
+            l,
+            i,
+            a,
+            f,
+            c,
+            r,
+            // original for message
+            h
+            // brightened for scope prefix
           );
-        }
-
-        // Node: scope prefix uses brightened color, message uses original scope color
-        const scopedMessage =
-          scopeColor && !Lumberjack.#isBrowser && chalk
-            ? `${chalk.hex(brightScopeColor ?? scopeColor)(
-                rawScopePrefix
-              )} ${chalk.hex(scopeColor)(message)}`
-            : `${rawScopePrefix} ${message}`;
-
-        return instance.trace(scopedMessage, obj, mode, style);
+        const d = r && !u.#i && p ? `${p.hex(h ?? r)(
+          l
+        )} ${p.hex(r)(i)}` : `${l} ${i}`;
+        return n.trace(d, a, f, c);
       },
-
-      indent: () => instance.indent(),
-      outdent: () => instance.outdent(),
-      resetIndent: () => instance.resetIndent(),
-
-      group: async (fn) => {
-        instance.trace(
-          `${rawScopePrefix} ${GROUP_START_SUFFIX}`,
+      indent: () => n.indent(),
+      outdent: () => n.outdent(),
+      resetIndent: () => n.resetIndent(),
+      group: async (i) => {
+        n.trace(
+          `${l} ${I}`,
           null,
           "brief",
           "headsup"
         );
-        const result = await instance.group(fn);
-        instance.trace(
-          `${rawScopePrefix} ${GROUP_COMPLETE_SUFFIX}`,
+        const a = await n.group(i);
+        return n.trace(
+          `${l} ${_}`,
           null,
           "brief",
           "success"
-        );
-        return result;
+        ), a;
       },
-
-      showScriptOutline: (operationName, outline) =>
-        instance.showScriptOutline(`${scope}: ${operationName}`, outline),
-
+      showScriptOutline: (i, a) => n.showScriptOutline(`${e}: ${i}`, a),
       get enabled() {
-        return instance.enabled;
+        return n.enabled;
       },
-      set enabled(value) {
-        instance.enabled = value;
+      set enabled(i) {
+        n.enabled = i;
       },
-
-      scope,
-      config: { ...instance.#config, scope },
+      scope: e,
+      config: { ...n.#e, scope: e }
     };
   }
-
   /**
    * Static trace method for convenience
    */
-  static trace(
-    message,
-    obj = null,
-    mode = DEFAULT_MODE,
-    style = DEFAULT_STYLE
-  ) {
-    return Lumberjack.getInstance().trace(message, obj, mode, style);
+  static trace(e, s = null, n = g, r = E) {
+    return u.getInstance().trace(e, s, n, r);
   }
-
   /**
    * Static getter/setter for enabled state
    */
   static get enabled() {
-    return Lumberjack.getInstance().enabled;
+    return u.getInstance().enabled;
   }
-
-  static set enabled(value) {
-    Lumberjack.getInstance().enabled = value;
+  static set enabled(e) {
+    u.getInstance().enabled = e;
   }
-
   indent() {
-    this.#indentLevel++;
+    this.#t++;
   }
-
   outdent() {
-    this.#indentLevel = Math.max(0, this.#indentLevel - 1);
+    this.#t = Math.max(0, this.#t - 1);
   }
-
   resetIndent() {
-    this.#indentLevel = 0;
+    this.#t = 0;
   }
-
   /**
    * Display a script execution outline showing the planned script sequence
    * Provides transparency about what scripts will be called and in what order
@@ -332,143 +181,113 @@ class Lumberjack {
    *   { name: 'build:11ty', description: 'Generate static site', script: 'eleventy --quiet' }
    * ]);
    */
-  showScriptOutline(
-    operationName,
-    scriptSequence,
-    mode = "brief",
-    style = "headsup"
-  ) {
+  showScriptOutline(e, s, n = "brief", r = "headsup") {
     if (!this.enabled) return;
-
-    const styleObj = this._getStyle(style);
-    const prefixIcon =
-      styleObj.prefix || SCRIPT_OUTLINE_STYLE?.prefix || SCRIPT_OUTLINE_ICON;
-    const divider = DIVIDER_CHAR.repeat(DIVIDER_LENGTH);
-
-    if (!Lumberjack.#isBrowser && chalk) {
-      console.log(
-        "\n" +
-          chalk.hex(styleObj.color)(prefixIcon) +
-          ` ${operationName.toUpperCase()}`
-      );
-      console.log(chalk.hex(DIVIDER_COLOR)(divider));
-    } else {
-      console.log(
-        "\n%c" + prefixIcon + "%c " + operationName.toUpperCase(),
-        `color: ${styleObj.color}; font-weight: ${
-          styleObj.fontWeight || LumberjackStyles.DEFAULT.fontWeight
-        }; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`,
-        `color: ${LumberjackStyles.DEFAULT.color}; font-weight: ${LumberjackStyles.DEFAULT.fontWeight}; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
-      );
-      console.log(
-        "%c" + divider,
-        `color: ${DIVIDER_COLOR}; font-weight: ${LumberjackStyles.DEFAULT.fontWeight}; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
-      );
-    }
-
-    this.trace(
-      SCRIPT_OUTLINE_TITLE,
-      SCRIPT_OUTLINE_COUNT_TEMPLATE.replace(
+    const o = this._getStyle(r), l = o.prefix || w?.prefix, h = y.repeat(z);
+    !u.#i && p ? (console.log(
+      `
+` + p.hex(o.color)(l) + ` ${e.toUpperCase()}`
+    ), console.log(p.hex(T)(h))) : (console.log(
+      `
+%c` + l + "%c " + e.toUpperCase(),
+      `color: ${o.color}; font-weight: ${o.fontWeight || t.DEFAULT.fontWeight}; font-size: ${t.DEFAULT.fontSize}px`,
+      `color: ${t.DEFAULT.color}; font-weight: ${t.DEFAULT.fontWeight}; font-size: ${t.DEFAULT.fontSize}px`
+    ), console.log(
+      "%c" + h,
+      `color: ${T}; font-weight: ${t.DEFAULT.fontWeight}; font-size: ${t.DEFAULT.fontSize}px`
+    )), this.trace(
+      C,
+      R.replace(
         "{count}",
-        String(scriptSequence.length)
+        String(s.length)
       ),
       "brief",
       "headsup"
-    );
-
-    this.group(() => {
-      scriptSequence.forEach((script, index) => {
-        const stepNumber = `${index + 1}.`;
-
-        if (mode === "verbose") {
+    ), this.group(() => {
+      s.forEach((i, a) => {
+        const f = `${a + 1}.`;
+        if (n === "verbose")
           this.trace(
-            `${stepNumber} ${script.name}`,
-            script.description || "No description provided",
+            `${f} ${i.name}`,
+            i.description || "No description provided",
             "brief",
             "default"
-          );
-
-          if (script.script) {
-            this.indent();
-            this.trace(LABEL_EXECUTES, script.script, "brief", "default");
-            this.outdent();
-          }
-
-          if (script.triggers?.length) {
-            this.indent();
-            this.trace(
-              LABEL_TRIGGERS,
-              script.triggers.join(", "),
-              "brief",
-              "default"
-            );
-            this.outdent();
-          }
-
-          if (script.dependencies?.length) {
-            this.indent();
-            this.trace(
-              LABEL_REQUIRES,
-              script.dependencies.join(", "),
-              "brief",
-              "default"
-            );
-            this.outdent();
-          }
-        } else {
-          const description = script.description
-            ? ` - ${script.description}`
-            : "";
+          ), i.script && (this.indent(), this.trace(O, i.script, "brief", "default"), this.outdent()), i.triggers?.length && (this.indent(), this.trace(
+            W,
+            i.triggers.join(", "),
+            "brief",
+            "default"
+          ), this.outdent()), i.dependencies?.length && (this.indent(), this.trace(
+            m,
+            i.dependencies.join(", "),
+            "brief",
+            "default"
+          ), this.outdent());
+        else {
+          const c = i.description ? ` - ${i.description}` : "";
           this.trace(
-            `${stepNumber} ${script.name}${description}`,
+            `${f} ${i.name}${c}`,
             null,
             "brief",
             "default"
           );
         }
       });
-    });
-
-    this.trace(
-      EXECUTION_BEGIN_TITLE,
-      EXECUTION_BEGIN_SUBTEXT,
+    }), this.trace(
+      P,
+      V,
       "brief",
       "headsup"
     );
   }
-
   /**
    * Get current indentation string
    * @private
    * @returns {string} Space characters for current indentation level
    */
   _getIndent() {
-    return " ".repeat(this.#indentLevel * INDENT_SIZE);
+    return " ".repeat(this.#t * A);
   }
-
+  /**
+   * Get caller location from stack trace
+   * @private
+   * @returns {Object|null} Object with file, line, and column, or null if unavailable
+   */
+  _getCallerLocation() {
+    try {
+      const s = new Error().stack?.split(`
+`) || [];
+      for (let n = 0; n < s.length; n++) {
+        const r = s[n];
+        let o, l, h, i = r.match(/\(([^)]+):(\d+):(\d+)\)/);
+        if (i ? (o = i[1], l = i[2], h = i[3]) : (i = r.match(/at\s+(.+):(\d+):(\d+)$/), i && (o = i[1], l = i[2], h = i[3])), !o || !l || !h)
+          continue;
+        const a = o.includes("Lumberjack.class.js") || o.includes("LumberjackStyle.js") || o.includes("LumberjackStyles.js") || o.includes("config.js") || o.includes("constants.js") || o.includes("utils.js") || o.includes("node_modules") || o.includes("internal/"), f = o.includes("index.js") && o.includes("src/");
+        if (!(a || f))
+          return { file: o, line: l, column: h };
+      }
+    } catch {
+    }
+    return null;
+  }
   /**
    * Execute function with increased indentation
    * Adds separators and newlines before and after the group for visual separation
    * @param {Function} fn - Function to execute
    */
-  async group(fn) {
-    const isTopLevel = this.#indentLevel === 0;
-
-    if (this.enabled && isTopLevel) {
-      console.log("\n" + LumberjackStyles.SEPARATOR + "\n");
-    }
-
-    this.indent();
+  async group(e) {
+    const s = this.#t === 0;
+    this.enabled && s && console.log(`
+` + t.SEPARATOR + `
+`), this.indent();
     try {
-      await fn();
+      await e();
     } finally {
-      this.outdent();
-      if (this.enabled && isTopLevel) {
-        console.log("\n" + LumberjackStyles.SEPARATOR + "\n");
-      }
+      this.outdent(), this.enabled && s && console.log(`
+` + t.SEPARATOR + `
+`);
     }
   }
-
   /**
    * Trace and display object information
    * @param {string} message - User-defined message to display
@@ -476,95 +295,46 @@ class Lumberjack {
    * @param {string} [mode='brief'] - Display mode: 'brief', 'verbose', or 'silent'
    * @param {string|LumberjackStyle} [style='default'] - Style type: 'default', 'headsup', 'error', 'success', or a custom LumberjackStyle instance
    */
-  trace(message, obj = null, mode = DEFAULT_MODE, style = DEFAULT_STYLE) {
-    if (!this.enabled || mode === "silent") return;
-
-    // Auto-detect Error objects
-    if (style === "default" && obj instanceof Error) style = "error";
-
-    const styleObj = this._getStyle(style);
-    const indent = this._getIndent();
-    const configPrefix = this.#config.prefix?.trim();
-    const hasPrefix = styleObj.prefix && styleObj.prefix !== "";
-
-    if (!Lumberjack.#isBrowser && chalk) {
-      // Terminal mode (Node.js with chalk)
-      let output = indent;
-      if (configPrefix) output += `${configPrefix} `;
-      if (hasPrefix) {
-        output += chalk.hex(styleObj.color)(
-          styleObj.prefix.replace(/\n/g, "\n" + indent)
-        );
-        if (!styleObj.prefix.match(/\s$/)) output += " ";
+  trace(e, s = null, n = g, r = E) {
+    if (!this.enabled || n === "silent") return;
+    r === "default" && s instanceof Error && (r = "error");
+    const o = this._getStyle(r), l = this._getIndent(), h = this.#e.prefix?.trim(), i = o.prefix && o.prefix !== "", a = this.#e.showCallerLocation ? this._getCallerLocation() : null;
+    if (!u.#i && p) {
+      let f = l;
+      if (h && (f += `${h} `), i && (f += p.hex(o.color)(
+        o.prefix.replace(/\n/g, `
+` + l)
+      ), o.prefix.match(/\s$/) || (f += " ")), f += e, a) {
+        const c = `${a.file}:${a.line}`;
+        f += p.dim(` (${c})`);
       }
-      output += message;
-
-      if (obj != null) {
-        output +=
-          " " +
-          (mode === "brief"
-            ? this._getValue(obj, false)
-            : "\n" + this._formatVerbosePlain(obj, indent));
-      }
-
-      console.log(output);
+      s != null && (f += " " + (n === "brief" ? this._getValue(s, !1) : `
+` + this._formatVerbosePlain(s, l))), console.log(f);
     } else {
-      // Browser mode (console.log with CSS)
-      const parts = [];
-      const styles = [];
-
-      // Add indent and config prefix
-      if (indent || configPrefix) {
-        parts.push("%c" + indent + (configPrefix ? `${configPrefix} ` : ""));
-        styles.push(
-          `color: ${LumberjackStyles.DEFAULT.color}; font-weight: ${LumberjackStyles.DEFAULT.fontWeight}; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
+      const f = [], c = [];
+      if ((l || h) && (f.push("%c" + l + (h ? `${h} ` : "")), c.push(
+        `color: ${t.DEFAULT.color}; font-weight: ${t.DEFAULT.fontWeight}; font-size: ${t.DEFAULT.fontSize}px`
+      )), i && (f.push("%c" + o.prefix.replace(/\n/g, `
+` + l)), c.push(
+        `color: ${o.color}; font-weight: ${o.fontWeight || t.DEFAULT.fontWeight}; font-size: ${t.DEFAULT.fontSize}px`
+      ), o.prefix.match(/\s$/) || (f.push("%c "), c.push(
+        `color: ${t.DEFAULT.color}; font-weight: ${t.DEFAULT.fontWeight}; font-size: ${t.DEFAULT.fontSize}px`
+      ))), f.push("%c" + e), c.push(
+        `color: ${o.color}; font-weight: ${o.fontWeight || t.DEFAULT.fontWeight}; font-size: ${t.DEFAULT.fontSize}px`
+      ), a) {
+        const d = `${a.file}:${a.line}`;
+        f.push("%c " + d), c.push(
+          `color: ${t.DEFAULT.color}; font-weight: normal; font-size: 10px; opacity: 0.7`
         );
       }
-
-      // Add style prefix (emoji/icon)
-      if (hasPrefix) {
-        parts.push("%c" + styleObj.prefix.replace(/\n/g, "\n" + indent));
-        styles.push(
-          `color: ${styleObj.color}; font-weight: ${
-            styleObj.fontWeight || LumberjackStyles.DEFAULT.fontWeight
-          }; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
-        );
-        if (!styleObj.prefix.match(/\s$/)) {
-          parts.push("%c ");
-          styles.push(
-            `color: ${LumberjackStyles.DEFAULT.color}; font-weight: ${LumberjackStyles.DEFAULT.fontWeight}; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
-          );
-        }
-      }
-
-      // Add main message with custom color
-      parts.push("%c" + message);
-      styles.push(
-        `color: ${styleObj.color}; font-weight: ${
-          styleObj.fontWeight || LumberjackStyles.DEFAULT.fontWeight
-        }; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
-      );
-
-      // Add data object if present
-      if (obj != null) {
-        if (mode === "brief") {
-          parts.push("%c " + this._getValue(obj, false));
-          styles.push(
-            `color: ${LumberjackStyles.DEFAULT.color}; font-weight: ${LumberjackStyles.DEFAULT.fontWeight}; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
-          );
-        } else {
-          // Verbose mode
-          parts.push("%c\n" + this._formatVerbosePlain(obj, indent));
-          styles.push(
-            `color: ${LumberjackStyles.DEFAULT.color}; font-weight: ${LumberjackStyles.DEFAULT.fontWeight}; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
-          );
-        }
-      }
-
-      console.log(parts.join(""), ...styles);
+      s != null && (n === "brief" ? (f.push("%c " + this._getValue(s, !1)), c.push(
+        `color: ${t.DEFAULT.color}; font-weight: ${t.DEFAULT.fontWeight}; font-size: ${t.DEFAULT.fontSize}px`
+      )) : (f.push(`%c
+` + this._formatVerbosePlain(s, l)), c.push(
+        `color: ${t.DEFAULT.color}; font-weight: ${t.DEFAULT.fontWeight}; font-size: ${t.DEFAULT.fontSize}px`
+      ))), console.log(f.join(""), ...c);
     }
   }
-
   /**
    * Special trace method for scoped loggers in browser with custom scope color
    * @private
@@ -575,95 +345,51 @@ class Lumberjack {
    * @param {string} style - Style type
    * @param {string} scopeColor - Hex color for the scope
    */
-  _traceScopedBrowser(
-    scopePrefix,
-    message,
-    obj,
-    mode,
-    style,
-    scopeColor, // original
-    brightScopeColor // brightened
-  ) {
-    if (!this.enabled || mode === "silent") return;
-    if (style === "default" && obj instanceof Error) style = "error";
-
-    const styleObj = this._getStyle(style);
-    const indent = this._getIndent();
-    const parts = [];
-    const styles = [];
-
-    if (indent) {
-      parts.push("%c" + indent);
-      styles.push(
-        `color: ${LumberjackStyles.DEFAULT.color}; font-weight: ${LumberjackStyles.DEFAULT.fontWeight}; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
-      );
-    }
-
-    const configPrefix = this.#config.prefix?.trim();
-    if (configPrefix) {
-      parts.push("%c" + configPrefix + " ");
-      styles.push(
-        `color: ${LumberjackStyles.DEFAULT.color}; font-weight: ${LumberjackStyles.DEFAULT.fontWeight}; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
-      );
-    }
-
-    if (styleObj.prefix) {
-      parts.push("%c" + styleObj.prefix.replace(/\n/g, "\n" + indent));
-      styles.push(
-        `color: ${styleObj.color}; font-weight: ${
-          styleObj.fontWeight || LumberjackStyles.DEFAULT.fontWeight
-        }; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
-      );
-      if (!styleObj.prefix.match(/\s$/)) {
-        parts.push("%c ");
-        styles.push(
-          `color: ${LumberjackStyles.DEFAULT.color}; font-weight: ${LumberjackStyles.DEFAULT.fontWeight}; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
-        );
-      }
-    }
-
-    // Scope prefix uses brightened color
-    const scopeColorFinal =
-      brightScopeColor || scopeColor || LumberjackStyles.DEFAULT.color;
-    parts.push("%c" + scopePrefix);
-    styles.push(
-      `color: ${scopeColorFinal}; font-weight: ${LumberjackStyles.DEFAULT.fontWeight}; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
+  _traceScopedBrowser(e, s, n, r, o, l, h) {
+    if (!this.enabled || r === "silent") return;
+    o === "default" && n instanceof Error && (o = "error");
+    const i = this._getStyle(o), a = this._getIndent(), f = this.#e.showCallerLocation ? this._getCallerLocation() : null, c = [], d = [];
+    a && (c.push("%c" + a), d.push(
+      `color: ${t.DEFAULT.color}; font-weight: ${t.DEFAULT.fontWeight}; font-size: ${t.DEFAULT.fontSize}px`
+    ));
+    const $ = this.#e.prefix?.trim();
+    $ && (c.push("%c" + $ + " "), d.push(
+      `color: ${t.DEFAULT.color}; font-weight: ${t.DEFAULT.fontWeight}; font-size: ${t.DEFAULT.fontSize}px`
+    )), i.prefix && (c.push("%c" + i.prefix.replace(/\n/g, `
+` + a)), d.push(
+      `color: ${i.color}; font-weight: ${i.fontWeight || t.DEFAULT.fontWeight}; font-size: ${t.DEFAULT.fontSize}px`
+    ), i.prefix.match(/\s$/) || (c.push("%c "), d.push(
+      `color: ${t.DEFAULT.color}; font-weight: ${t.DEFAULT.fontWeight}; font-size: ${t.DEFAULT.fontSize}px`
+    )));
+    const S = h || l || t.DEFAULT.color;
+    c.push("%c" + e), d.push(
+      `color: ${S}; font-weight: ${t.DEFAULT.fontWeight}; font-size: ${t.DEFAULT.fontSize}px`
     );
-
-    // Message uses original scope color
-    const messageColor = scopeColor || LumberjackStyles.DEFAULT.color;
-    parts.push("%c " + message);
-    styles.push(
-      `color: ${messageColor}; font-weight: ${LumberjackStyles.DEFAULT.fontWeight}; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
-    );
-
-    if (obj != null) {
-      parts.push(
-        "%c " +
-          (mode === "brief"
-            ? this._getValue(obj, false)
-            : "\n" + this._formatVerbosePlain(obj, indent))
-      );
-      styles.push(
-        `color: ${LumberjackStyles.DEFAULT.color}; font-weight: ${LumberjackStyles.DEFAULT.fontWeight}; font-size: ${LumberjackStyles.DEFAULT.fontSize}px`
+    const D = l || t.DEFAULT.color;
+    if (c.push("%c " + s), d.push(
+      `color: ${D}; font-weight: ${t.DEFAULT.fontWeight}; font-size: ${t.DEFAULT.fontSize}px`
+    ), f) {
+      const F = `${f.file}:${f.line}`;
+      c.push("%c " + F), d.push(
+        `color: ${t.DEFAULT.color}; font-weight: normal; font-size: 10px; opacity: 0.7`
       );
     }
-
-    console.log(parts.join(""), ...styles);
+    n != null && (c.push(
+      "%c " + (r === "brief" ? this._getValue(n, !1) : `
+` + this._formatVerbosePlain(n, a))
+    ), d.push(
+      `color: ${t.DEFAULT.color}; font-weight: ${t.DEFAULT.fontWeight}; font-size: ${t.DEFAULT.fontSize}px`
+    )), console.log(c.join(""), ...d);
   }
-
   /**
    * Get the style object based on input
    * @private
    * @param {string|LumberjackStyle} style - Style name or LumberjackStyle instance
    * @returns {LumberjackStyle} Resolved style object
    */
-  _getStyle(style) {
-    if (style instanceof Object && style.color && style.color_secondary)
-      return style;
-    return LumberjackStyles.getStyle(style);
+  _getStyle(e) {
+    return e instanceof Object && e.color && e.color_secondary ? e : t.getStyle(e);
   }
-
   /**
    * Format object for brief mode
    * @private
@@ -671,44 +397,29 @@ class Lumberjack {
    * @param {boolean} [inArray=false] - Whether the object is inside an array
    * @returns {string} Formatted string
    */
-  _getValue(obj, inArray = false, seen = new Set()) {
-    if (obj === null) return "null";
-    if (obj === undefined) return "undefined";
-    if (typeof obj === "string") return obj;
-    if (typeof obj === "number" || typeof obj === "boolean") return String(obj);
-
-    if (Array.isArray(obj)) {
-      if (seen.has(obj)) return "[Circular]";
-      seen.add(obj);
-      const preview = obj
-        .slice(0, MAX_ARRAY_PREVIEW)
-        .map((item) => this._getValue(item, true, seen));
-      const suffix = obj.length > MAX_ARRAY_PREVIEW ? ", ..." : "";
-      return `[${preview.join(", ")}${suffix}]`;
+  _getValue(e, s = !1, n = /* @__PURE__ */ new Set()) {
+    if (e === null) return "null";
+    if (e === void 0) return "undefined";
+    if (typeof e == "string") return e;
+    if (typeof e == "number" || typeof e == "boolean") return String(e);
+    if (Array.isArray(e)) {
+      if (n.has(e)) return "[Circular]";
+      n.add(e);
+      const r = e.slice(0, U).map((l) => this._getValue(l, !0, n)), o = e.length > U ? ", ..." : "";
+      return `[${r.join(", ")}${o}]`;
     }
-
-    if (obj instanceof Error) {
-      return `${obj.name}: ${obj.message}`;
+    if (e instanceof Error)
+      return `${e.name}: ${e.message}`;
+    if (typeof e == "object") {
+      if (n.has(e)) return "[Circular]";
+      n.add(e);
+      const r = Object.keys(e), l = r.slice(0, L).map(
+        (i) => `${i}: ${this._getValue(e[i], !1, n)}`
+      ), h = r.length > L ? ", ..." : "";
+      return `{ ${l.join(", ")}${h} }`;
     }
-
-    if (typeof obj === "object") {
-      if (seen.has(obj)) return "[Circular]";
-      //console.log(obj);
-      // if (depth >= MAX_VERBOSE_DEPTH) return "{...}";
-      seen.add(obj);
-      const keys = Object.keys(obj);
-      const previewKeys = keys.slice(0, MAX_OBJECT_PREVIEW);
-      const preview = previewKeys.map(
-        (key) => `${key}: ${this._getValue(obj[key], false, seen)}`
-      );
-      const suffix = keys.length > MAX_OBJECT_PREVIEW ? ", ..." : "";
-      return `{ ${preview.join(", ")}${suffix} }`;
-    }
-
-    if (typeof obj === "function") return "[Function]";
-    return String(obj);
+    return typeof e == "function" ? "[Function]" : String(e);
   }
-
   /**
    * Format object for verbose mode with indentation
    * @private
@@ -716,67 +427,44 @@ class Lumberjack {
    * @param {string} indent - Current indentation string
    * @returns {string} Formatted multi-line string
    */
-  _formatVerbosePlain(obj, indent = "", seen = new Set(), depth = 0) {
-    const space = " ".repeat(INDENT_SIZE);
-    const MAX_VERBOSE_DEPTH = 5;
-
-    if (obj === null) return "null";
-    if (obj === undefined) return "undefined";
-    if (typeof obj === "string") return obj;
-    if (typeof obj === "number" || typeof obj === "boolean") return String(obj);
-
-    if (Array.isArray(obj)) {
-      if (seen.has(obj)) return "[Circular]";
-      if (depth >= MAX_VERBOSE_DEPTH) return "[...]";
-      seen.add(obj);
-      const items = obj
-        .map(
-          (item) =>
-            `${indent}${space}- ${this._formatVerbosePlain(
-              item,
-              indent + space,
-              seen,
-              depth + 1
-            )}`
-        )
-        .join("\n");
-      return items || "[]";
-    }
-
-    if (obj instanceof Error) {
-      return `${obj.name}: ${obj.message}\n${obj.stack}`;
-    }
-
-    if (typeof obj === "object") {
-      if (seen.has(obj)) return "[Circular]";
-      if (depth >= MAX_VERBOSE_DEPTH) return "{...}";
-      seen.add(obj);
-      const entries = Object.entries(obj)
-        .map(
-          ([key, value]) =>
-            `${indent}${space}${key}: ${this._formatVerbosePlain(
-              value,
-              indent + space,
-              seen,
-              depth + 1
-            )}`
-        )
-        .join("\n");
-      return entries || "{}";
-    }
-
-    if (typeof obj === "function") return "[Function]";
-    return String(obj);
+  _formatVerbosePlain(e, s = "", n = /* @__PURE__ */ new Set(), r = 0) {
+    const o = " ".repeat(A), l = 5;
+    return e === null ? "null" : e === void 0 ? "undefined" : typeof e == "string" ? e : typeof e == "number" || typeof e == "boolean" ? String(e) : Array.isArray(e) ? n.has(e) ? "[Circular]" : r >= l ? "[...]" : (n.add(e), e.map(
+      (i) => `${s}${o}- ${this._formatVerbosePlain(
+        i,
+        s + o,
+        n,
+        r + 1
+      )}`
+    ).join(`
+`) || "[]") : e instanceof Error ? `${e.name}: ${e.message}
+${e.stack}` : typeof e == "object" ? n.has(e) ? "[Circular]" : r >= l ? "{...}" : (n.add(e), Object.entries(e).map(
+      ([i, a]) => `${s}${o}${i}: ${this._formatVerbosePlain(
+        a,
+        s + o,
+        n,
+        r + 1
+      )}`
+    ).join(`
+`) || "{}") : typeof e == "function" ? "[Function]" : String(e);
   }
-
   get enabled() {
-    return this.#config.enabled;
+    return this.#e.enabled;
   }
-
-  set enabled(value) {
-    this.#config.enabled = Boolean(value);
+  set enabled(e) {
+    this.#e.enabled = !!e;
+  }
+  getConfig() {
+    return {
+      enabled: this.#e.enabled,
+      showCallerLocation: this.#e.showCallerLocation,
+      prefix: this.#e.prefix,
+      styles: this.#e.styles,
+      scope: this.#e.scope
+    };
   }
 }
-
-export { Lumberjack }; // Named export for advanced usage
-export default Lumberjack;
+export {
+  u as Lumberjack,
+  u as default
+};

@@ -4,27 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Lumberjack Browser Demo</title>
-    <link rel="stylesheet" href="./styles.css">
+    <script type="module" crossorigin src="/_virtual/modulepreload-polyfill.js"></script>
+    <script type="module" crossorigin src="/utils.js"></script>
+    <script type="module" crossorigin src="/LumberjackStyle.js"></script>
+    <script type="module" crossorigin src="/config.js"></script>
+    <script type="module" crossorigin src="/LumberjackStyles.js"></script>
+    <script type="module" crossorigin src="/constants.js"></script>
+    <script type="module" crossorigin src="/Lumberjack.class.js"></script>
+    <script type="module" crossorigin src="/index.js"></script>
+    <script type="module" crossorigin src="/demo/scripts.js"></script>
+    <link rel="stylesheet" crossorigin href="/demo/lumberjack.css">
   </head>
   <body>
-    <header class="sticky-header">
-      <div class="header-content">
-        <h1>🪓 Lumberjack Browser Demo</h1>
-        <div class="dropdown-container">
-          <button class="dropdown-btn">⚙️ Settings</button>
-          <div class="dropdown-menu">
-            <label class="dropdown-item" id="logging-item">
-              <input type="checkbox" id="setting-logging" />
-              <span id="logging-text">🚀 Enable Logger</span>
-            </label>
-            <label class="dropdown-item" id="caller-location-item">
-              <input type="checkbox" id="setting-caller-location" />
-              <span id="caller-location-text">📍 Enable Caller Location</span>
-            </label>
-          </div>
-        </div>
-      </div>
-    </header>
+    <h1>🪓 Lumberjack Browser Demo</h1>
 
     <div class="note">
       <strong>📋 Important:</strong> Open your browser's DevTools console (F12)
@@ -50,11 +42,16 @@
     </div>
 
     <div class="demo-section" style="border-left-color: #fbbf24">
-      <h2>⚠️ 1. Getting Started</h2>
-      <p>
-        Use the <strong>⚙️ Settings</strong> menu in the header to enable logging and configure caller location display. 
-        Once logging is enabled, click the demo buttons below to see Lumberjack in action. Open your browser's DevTools console (F12) to view the styled output.
-      </p>
+      <h2>⚠️ 1. ENABLE LOGGER FIRST</h2>
+      <button
+        id="btn-toggle"
+        style="background: #fbbf24; font-weight: bold; font-size: 1.1rem"
+      >
+        🚀 Enable Logger (Click Me First!)
+      </button>
+      <button id="btn-toggle-caller-location" style="background: #60a5fa; font-weight: bold">
+        📍 Caller Location Enabled (Click to Toggle)
+      </button>
       <button id="btn-basic">Log Standard Message</button>
       <button id="btn-headsup">Log Headsup</button>
       <button id="btn-success">Log Success</button>
@@ -62,20 +59,20 @@
 
       <div class="code-section">
         <div class="code-label">Code Examples:</div>
-        <pre><code>lumberjack.enabled = !lumberjack.enabled;
-// ✅ Logger enabled! Check console for all subsequent logs.
+        <pre><code>// Toggle logger
+lumberjack.enabled = !lumberjack.enabled;
 
+// Standard message
 lumberjack.trace("Standard message", sampleData, "brief", "default");
-// Standard message { user: "alice", items: [1, 2, 3, ...], config: {...}, nested: {...} }
 
+// Headsup (⚡ amber)
 lumberjack.trace("Important notification", { priority: "high" }, "brief", "headsup");
-// ⚡ Important notification { priority: "high" }
 
+// Success (✓ green)
 lumberjack.trace("Operation completed", { duration: "1.2s" }, "brief", "success");
-// ✓ Operation completed { duration: "1.2s" }
 
-lumberjack.trace("Something went wrong", { code: 500 }, "brief", "error");
-// ❌ Something went wrong { code: 500 }</code></pre>
+// Error (❌ red)
+lumberjack.trace("Something went wrong", { code: 500 }, "brief", "error");</code></pre>
       </div>
     </div>
 
@@ -86,15 +83,11 @@ lumberjack.trace("Something went wrong", { code: 500 }, "brief", "error");
 
       <div class="code-section">
         <div class="code-label">Code Examples:</div>
-        <pre><code>lumberjack.trace("Brief mode (truncates arrays/objects)", sampleData, "brief");
-// Brief mode (truncates arrays/objects) { user: "alice", items: [1, 2, 3, ...], config: {...} }
+        <pre><code>// Brief mode - truncates long arrays/objects
+lumberjack.trace("Brief mode (truncates arrays/objects)", sampleData, "brief");
 
-lumberjack.trace("Verbose mode (expands all data)", sampleData, "verbose");
-// Verbose mode (expands all data)
-//   user: "alice"
-//   items: [1, 2, 3, 4, 5, 6, 7, 8]
-//   config: { theme: "dark", timeout: 5000 }
-//   nested: { deep: { value: "hello" } }</code></pre>
+// Verbose mode - expands all data with formatting
+lumberjack.trace("Verbose mode (expands all data)", sampleData, "verbose");</code></pre>
       </div>
     </div>
 
@@ -104,15 +97,12 @@ lumberjack.trace("Verbose mode (expands all data)", sampleData, "verbose");
 
       <div class="code-section">
         <div class="code-label">Code Example:</div>
-        <pre><code>try {
+        <pre><code>// Error objects auto-detect and apply 'error' style
+try {
   throw new Error("Simulated runtime error");
 } catch (err) {
   // No need to specify 'error' style - auto-detected!
   lumberjack.trace("Caught exception (auto-detects Error):", err, "verbose");
-  // ❌ Caught exception (auto-detects Error):
-  //   Error: Simulated runtime error
-  //   at <anonymous>:2:9
-  //   [full stack trace...]
 }</code></pre>
       </div>
     </div>
@@ -126,38 +116,22 @@ lumberjack.trace("Verbose mode (expands all data)", sampleData, "verbose");
         <div class="code-label">Code Examples:</div>
         <pre><code>// Manual indentation
 lumberjack.trace("Level 0");
-// Level 0
-
 lumberjack.indent();
 lumberjack.trace("Level 1 (indented)");
-//   Level 1 (indented)
-
 lumberjack.indent();
 lumberjack.trace("Level 2 (double indent)");
-//     Level 2 (double indent)
-
 lumberjack.outdent();
 lumberjack.trace("Back to Level 1");
-//   Back to Level 1
-
 lumberjack.resetIndent();
 lumberjack.trace("Reset to Level 0");
-// Reset to Level 0
 
 // Grouped logs (auto-indent/outdent)
 await lumberjack.group(async () => {
   lumberjack.trace("Parent operation started");
-  // :::::::::::::::::::
-  // Parent operation started
-  
   lumberjack.trace("Child operation 1 (auto-indented)");
-  //   Child operation 1 (auto-indented)
-  
   lumberjack.trace("Child operation 2 (auto-indented)");
-  //   Child operation 2 (auto-indented)
 });
-lumberjack.trace("After group (indent restored)");
-// After group (indent restored)</code></pre>
+lumberjack.trace("After group (indent restored)");</code></pre>
       </div>
     </div>
 
@@ -168,25 +142,22 @@ lumberjack.trace("After group (indent restored)");
 
       <div class="code-section">
         <div class="code-label">Code Examples:</div>
-        <pre><code>const uiLogger = Lumberjack.createScoped("UI", {
+        <pre><code>// Create scoped logger with custom prefix and color
+const uiLogger = Lumberjack.createScoped("UI", {
   prefix: "🎨",
   color: "#10B981",
 });
 uiLogger.trace("Component mounted");
-// [UI] Component mounted
 uiLogger.trace("State updated", { count: 42 });
-// [UI] State updated { count: 42 }
 
+// Scoped logger with grouping
 const apiLogger = Lumberjack.createScoped("API", {
   prefix: "🌐",
   color: "#F59E0B",
 });
 await apiLogger.group(async () => {
   apiLogger.trace("Fetching data...");
-  // :::::::::::::::::::
-  // [API] Fetching data...
   apiLogger.trace("Processing response...");
-  //   [API] Processing response...
 });</code></pre>
       </div>
     </div>
@@ -198,16 +169,14 @@ await apiLogger.group(async () => {
 
       <div class="code-section">
         <div class="code-label">Code Examples:</div>
-        <pre><code>lumberjack.showScriptOutline("Deploy Pipeline", [
+        <pre><code>// Brief outline - just names and descriptions
+lumberjack.showScriptOutline("Deploy Pipeline", [
   { name: "build", description: "Bundle assets" },
   { name: "test", description: "Run test suite" },
   { name: "upload", description: "Deploy to CDN" },
 ], "brief", "headsup");
-// ⚡ Deploy Pipeline
-//   build: Bundle assets
-//   test: Run test suite
-//   upload: Deploy to CDN
 
+// Verbose outline - includes scripts, triggers, dependencies
 lumberjack.showScriptOutline("CI/CD Workflow", [
   {
     name: "lint",
@@ -228,18 +197,7 @@ lumberjack.showScriptOutline("CI/CD Workflow", [
     dependencies: ["build"],
     triggers: ["main"],
   },
-], "verbose", "headsup");
-// ⚡ CI/CD Workflow
-//   lint: Check code style
-//     script: npm run lint
-//     triggers: ["push", "pull_request"]
-//   build: Compile TypeScript
-//     script: tsc --project tsconfig.json
-//     dependencies: ["lint"]
-//   deploy: Upload artifacts
-//     script: aws s3 sync dist/ s3://bucket
-//     dependencies: ["build"]
-//     triggers: ["main"]</code></pre>
+], "verbose", "headsup");</code></pre>
       </div>
     </div>
 
@@ -251,26 +209,25 @@ lumberjack.showScriptOutline("CI/CD Workflow", [
 
       <div class="code-section">
         <div class="code-label">Code Examples:</div>
-        <pre><code>const purpleStyle = new LumberjackStyle("#9333EA", "🎨");
+        <pre><code>// Create custom style instance
+const purpleStyle = new LumberjackStyle("#9333EA", "🎨");
 
+// Use once for a single message
 lumberjack.trace(
   "Single custom purple message (next message will be standard)",
   { theme: "royal" },
   "brief",
   purpleStyle
 );
-// 🎨 Single custom purple message (next message will be standard) { theme: "royal" }
 
+// Pass to multiple calls to use consistently
 lumberjack.trace("Purple style message 1", { count: 1 }, "brief", purpleStyle);
-// 🎨 Purple style message 1 { count: 1 }
 lumberjack.trace("Purple style message 2", { count: 2 }, "brief", purpleStyle);
-// 🎨 Purple style message 2 { count: 2 }
 lumberjack.trace("Purple style message 3", { count: 3 }, "brief", purpleStyle);
-// 🎨 Purple style message 3 { count: 3 }
 
+// Reset to standard style
 lumberjack.trace("Back to standard style (gray, no prefix)", 
-  { reset: true }, "brief", "standard");
-// Back to standard style (gray, no prefix) { reset: true }</code></pre>
+  { reset: true }, "brief", "standard");</code></pre>
       </div>
     </div>
 
@@ -280,23 +237,24 @@ lumberjack.trace("Back to standard style (gray, no prefix)",
 
       <div class="code-section">
         <div class="code-label">Code Examples:</div>
-        <pre><code>lumberjack.configure({
+        <pre><code>// Configure global settings
+lumberjack.configure({
   enabled: true,
   prefix: "[APP] ",
 });
 
+// Prefix will appear on all subsequent messages
 lumberjack.trace("Logger reconfigured with prefix");
-// [APP] Logger reconfigured with prefix
 
+// Disable caller location display (enabled by default)
 lumberjack.configure({
   enabled: true,
   showCallerLocation: false,
 });
 
-lumberjack.trace("Message without caller location");
-// [APP] Message without caller location</code></pre>
+// Messages will no longer show file:line location
+lumberjack.trace("Message without caller location");</code></pre>
       </div>
     </div>
-    <script src="./scripts.js" type="module"></script>
   </body>
 </html>
